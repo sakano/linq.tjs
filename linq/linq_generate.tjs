@@ -1,0 +1,113 @@
+// ======================================================== Enumerable.from
+Scripts.propSet(Enumerable, "from", function(source)
+{
+    if (global.Enumerable.isEnumerable(source)) {
+        return source;
+    }
+
+    if (source instanceof "Array") {
+        return global.Enumerable.generate(
+            function(index, source) { return source[index]; },
+            source.length, source
+        );
+    }
+
+    if (source instanceof "Dictionary") {
+        var keys = Scripts.getObjectKeys(source);
+        return global.Enumerable.generate(
+            function(index, source, keys) {
+                return %[
+                    key:keys[index],
+                    value:source[keys[index]]
+                ];
+            },
+            keys.length, source, keys
+        );
+        return global.Enumerable.createEnumerable(
+            function(source) {
+                this.source = source;
+                this.keys = Scripts.getObjectKeys(source);
+                this.index = -1;
+            },
+            function { return ++index < keys.length; },
+            function {
+                return %[
+                    key:keys[index],
+                    value:source[keys[index]]
+                ];
+            },
+            source
+        );
+    }
+
+    if (source instanceof "String") {
+        return global.Enumerable.generate(
+            function(index, source) { return source[index]; },
+            source.length, source
+        );
+    }
+
+    return null;
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+// ======================================================== Enumerable.empty
+Scripts.propSet(Enumerable, "empty", function()
+{
+    return global.Enumerable.createEnumerable(
+            function {},
+            function { return false; },
+            function { return null; }
+    );
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+// ======================================================== Enumerable.generate
+Scripts.propSet(Enumerable, "generate", function(generator, count, *)
+{
+    return global.Enumerable.createEnumerable(
+        function(generator, count, args*) {
+            this.generator = global.Enumerable.createLambda(generator);
+            this.count = count;
+            this.args = args;
+            this.index = -1;
+        },
+        function {
+            ++index;
+            if (count !== void && count <= index) {
+                return false;
+            }
+            this.result = generator(index, args*);
+            return true;
+        },
+        function { return result; },
+        generator, count, *
+    );
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+// ======================================================== Enumerable.range
+Scripts.propSet(Enumerable, "range", function(start, count, step = 1)
+{
+    return global.Enumerable.generate(
+        function(index, start, step) { return start + step * index; },
+        count, start, step
+    );
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+// ======================================================== Enumerable.repeat
+Scripts.propSet(Enumerable, "repeat", function(value, count)
+{
+    return global.Enumerable.generate(
+        function(index, value) { return value; },
+        count, value
+    );
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+// ======================================================== Enumerable.returns
+Scripts.propSet(Enumerable, "returns", function(value)
+{
+    return global.Enumerable.repeat(value, 1);
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);

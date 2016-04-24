@@ -1,0 +1,174 @@
+if (typeof Scripts.getObjectKeys === "undefined") {
+    Plugins.link("scriptsEx.dll");
+}
+
+Scripts.propSet(Enumerable, "extensionMethods", %[
+    where : function(predicate, args*) {
+        return global.Enumerable.createEnumerable(
+            function(self, predicate, args) {
+                this.self = self.getEnumerator();
+                this.predicate = global.Enumerable.createLambda(predicate);
+                this.args = args;
+                this.index = -1;
+            },
+            function {
+                while (self.moveNext()) {
+                    ++index;
+                    if (predicate(self.current, index, args*)) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            function { return self.current; },
+            this, predicate, args
+        );
+    },
+    select : function(selector, args*) {
+        return global.Enumerable.createEnumerable(
+            function(self, selector, args) {
+                this.self = self.getEnumerator();
+                this.selector = global.Enumerable.createLambda(selector);
+                this.args = args;
+                this.index = -1;
+            },
+            function {
+                while (self.moveNext()) {
+                    ++index;
+                    this.result = selector(self.current, index, args*);
+                    return true;
+                }
+                return false;
+            },
+            function { return result; },
+            this, selector, args
+        );
+    },
+    selectMany : function(collectionSelector, resultSelector = function(a, b) { return b; }, args*) {
+        return global.Enumerable.createEnumerable(
+            function(self, collectionSelector, resultSelector, args) {
+                this.self = self.getEnumerator();
+                this.collectionSelector = global.Enumerable.createLambda(collectionSelector);
+                this.resultSelector = global.Enumerable.createLambda(resultSelector);
+                this.args = args;
+                this.index = -1;
+                this.selectedCollection = global.Enumerable.empty();
+            },
+            function {
+                while (selectedCollection.moveNext()) {
+                    this.result = resultSelector(self.current, selectedCollection.current, args*);
+                    return true;
+                }
+                while (self.moveNext()) {
+                    ++index;
+                    var collection = collectionSelector(self.current, index, args*);
+                    var enumerable = global.Enumerable.from(collection);
+                    selectedCollection = enumerable.getEnumerator();
+                    if (selectedCollection.moveNext()) {
+                        this.result = resultSelector(self.current, selectedCollection.current, args*);
+                        return true;
+                    }
+                }
+                return false;
+            },
+            function { return result; },
+            this, collectionSelector, resultSelector, args
+        );
+    },
+    concat : function(second) {
+        return global.Enumerable.createEnumerable(
+            function(self, second) {
+                this.first = self.getEnumerator();
+                this.second = second.getEnumerator();
+            },
+            function {
+                if (first.moveNext()) {
+                    return true;
+                }
+                if (second !== null) {
+                    first = second;
+                    second = null;
+                    return first.moveNext();
+                }
+                return false;
+            },
+            function { return first.current; },
+            this, second
+        );
+    },
+    count : function(predicate = function { return true; }, args*)
+    {
+        predicate = global.Enumerable.createLambda(predicate);
+
+        var counter = 0;
+        var enumerator = this.getEnumerator();
+        while (enumerator.moveNext()) {
+            if (predicate(enumerator.current, args*)) {
+                ++counter;
+            }
+        }
+        return counter;
+    },
+    isEmpty : function()
+    {
+        return !any();
+    },
+    any : function(predicate, args*)
+    {
+        if (predicate === void) {
+            return this.getEnumerator().moveNext();
+        }
+
+        predicate = global.Enumerable.createLambda(predicate);
+        var enumerator = this.getEnumerator();
+        while (enumerator.moveNext()) {
+            if (predicate(enumerator.current, args*)) {
+                return true;
+            }
+        }
+        return false;
+    },
+    all : function(predicate, args*)
+    {
+        predicate = global.Enumerable.createLambda(predicate);
+
+        var enumerator = this.getEnumerator();
+        while (enumerator.moveNext()) {
+            if (!predicate(enumerator.current, args*)) {
+                return false;
+            }
+        }
+        return true;
+    },
+    forEach : function(callback, args*)
+    {
+        callback = global.Enumerable.createLambda(callback);
+
+        var index = 0;
+        var enumerator = this.getEnumerator();
+        while (enumerator.moveNext()) {
+            if (callback(enumerator.current, index, args*) === false) {
+                return;
+            }
+            ++index;
+        }
+    },
+    toArray : function
+    {
+        var result = [];
+        var enumerator = getEnumerator();
+        while (enumerator.moveNext()) {
+            result.add(enumerator.current);
+        }
+        return result;
+    },
+], Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+
+class Enumerable
+{
+}
+
+Scripts.execStorage("linq_utility.tjs");
+Scripts.execStorage("linq_generate.tjs");

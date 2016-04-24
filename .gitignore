@@ -1,0 +1,17 @@
+# savedata
+/savedata/
+
+# plugin
+/plugin/
+
+# tvp
+tvpwin32.exe
+tvpwin32_p.exe
+tvpwin32_d.exe
+tvpwin64.exe
+tvpwin64_p.exe
+tvpwin64_d.exe
+krkr.exe
+
+# ctag
+tags

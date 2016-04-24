@@ -1,0 +1,72 @@
+// ======================================================== Enumerable.extendTo
+Scripts.propSet(Enumerable, "extendTo", function(target)
+{
+    var methods = global.Enumerable.extensionMethods;
+    var keys = global.Scripts.getObjectKeys(methods);
+    for (var i = 0; i < keys.count; ++i) {
+        var key = keys[i];
+        if (typeof target[key] === "undefined") {
+            target[key] = methods[key];
+        }
+    }
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+// ======================================================== Enumerable.isEnumerable
+Scripts.propSet(Enumerable, "isEnumerable", function(target)
+{
+     return
+        typeof target === "Object" &&
+        typeof target.getEnumerator === "Object" &&
+        target.getEnumerator instanceof "Function";
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+// ======================================================== Enumerable.createEnumerable
+Scripts.propSet(Enumerable, "createEnumerable", function
+{
+    return new global.EnumerableTemplate(...);
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+// ======================================================== Enumerable.createLambda
+Scripts.propSet(Enumerable, "createLambda", function(target)
+{
+    if (typeof target === "String") {
+        return Scripts.eval("function(_, _2, _3, _4, _5, _6, _7, _8, _9) { return " + target + "; }");
+    }
+    return target;
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+// ======================================================== EnumerableTemplate
+class EnumerableTemplate
+{
+    function EnumerableTemplate(initialize, moveNext, getCurrent, args*)
+    {
+        this.initialize = initialize;
+        this.moveNext = moveNext;
+        this.getCurrent = getCurrent;
+        this.args = args;
+    }
+
+    function getEnumerator()
+    {
+        var enumerator = new global.EnumeratorTemplate();
+        enumerator.moveNext = this.moveNext incontextof enumerator;
+        enumerator.getCurrent = this.getCurrent incontextof enumerator;
+        (this.initialize incontextof enumerator)(args*);
+        return enumerator;
+    }
+}
+Enumerable.extendTo(EnumerableTemplate);
+
+
+// ======================================================== EnumeratorTemplate
+class EnumeratorTemplate
+{
+    property current
+    {
+        getter { return this.getCurrent(); }
+    }
+}

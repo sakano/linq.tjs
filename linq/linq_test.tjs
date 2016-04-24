@@ -1,0 +1,469 @@
+// ======================================================== Enumerable.from
+function testFromArray
+{
+    var testArray = function(array) {
+        var index = 0;
+        var enumerable = Enumerable.from(array);
+        var enumerator = enumerable.getEnumerator();
+        while (enumerator.moveNext()) {
+            equals(enumerator.current, array[index]);
+            ++index;
+        }
+        equals(index, array.count);
+    };
+
+    testArray([1, 5, 10]);
+    testArray([]);
+    testArray([-1, "str", true, false, null, void]);
+    testArray([void, [1, 2, 3], [], %[]]);
+}
+
+function testFromDictionary
+{
+    var testDictionary = function(dic) {
+        var copy = %[];
+        (Dictionary.assign incontextof copy)(dic);
+        var enumerable = Enumerable.from(dic);
+        var enumerator = enumerable.getEnumerator();
+        while (enumerator.moveNext()) {
+            var pair = enumerator.current;
+            equals(pair.value, dic[pair.key]);
+            equals(pair.value, copy[pair.key]);
+            delete copy[pair.key];
+        }
+        equals(Scripts.getObjectKeys(copy).count, 0);
+    };
+
+    testDictionary(%[ key:1, key2:10, key3:-10 ]);
+    testDictionary(%[]);
+    testDictionary(%[ "int"=>1, "real"=>1.0, "null"=>null, "str"=>"str", "true"=>true, "false"=>false, "void"=>void ]);
+    testDictionary(%[ ary:[100, 200], dic:%[ key:"value" ] ]);
+}
+
+function testFromString
+{
+    var testString = function(str) {
+        var index = 0;
+        var enumerable = Enumerable.from(str);
+        var enumerator = enumerable.getEnumerator();
+        while (enumerator.moveNext()) {
+            equals(enumerator.current, str[index]);
+            ++index;
+        }
+        equals(index, str.length);
+    };
+
+    testString("test");
+    testString("");
+    testString("aaa bb c ");
+    testString("$");
+}
+
+function testFromEnumerable
+{
+    var enumerable = %[
+        getEnumerator : function {}
+    ];
+    equals(Enumerable.from(enumerable), enumerable);
+
+    equals(Enumerable.from(function{}), null);
+}
+
+// ======================================================== Enumerable.toArray
+function testToArray
+{
+    equals(
+        Enumerable.from([1, 10, 100, void, null, %[], [], void]).toArray(),
+        [1, 10, 100, void, null, %[], [], void]
+    );
+    equals(Enumerable.from([]).toArray(), []);
+    equals(Enumerable.from("str").toArray(), ["s", "t", "r"]);
+    equals(Enumerable.from("s").toArray(), ["s"]);
+    equals(Enumerable.from(%[ key:123 ]).toArray(), [ %[ key:"key", value:123 ] ]);
+}
+
+// ======================================================== Enumerable.empty
+function testEmpty
+{
+    var enumerable = Enumerable.empty();
+    var enumerator = enumerable.getEnumerator();
+    for (var i = 0; i < 100; ++i) {
+        equals(enumerator.moveNext(), false);
+    }
+    equals(Enumerable.empty().toArray(), []);
+}
+
+// ======================================================== Enumerable.generate
+function testGenerate
+{
+    var enumerator = Enumerable.generate(function { return 100; }).getEnumerator();
+    for (var i = 0; i < 100; ++i) {
+        equals(enumerator.moveNext(), true);
+        equals(enumerator.current, 100);
+    }
+
+    var enumerator = Enumerable.generate(function { return 0; }, 10).getEnumerator();
+    for (var i = 0; i < 10; ++i) {
+        equals(enumerator.moveNext(), true);
+        equals(enumerator.current, 0);
+    }
+    equals(enumerator.moveNext(), false);
+
+    var enumerator = Enumerable.generate(function { return 0; }, 0).getEnumerator();
+    equals(enumerator.moveNext(), false);
+
+    var enumerator = Enumerable.generate(
+        function(index, ary) { return ary[index]; },
+        3, [0, 10, 20]
+    ).getEnumerator();
+    for (var i = 0; i < 3; ++i) {
+        equals(enumerator.moveNext(), true);
+        equals(enumerator.current, i*10);
+    }
+    equals(enumerator.moveNext(), false);
+
+    var enumerator = Enumerable.generate("_ * 10", 5).getEnumerator();
+    for (var i = 0; i < 5; ++i) {
+        equals(enumerator.moveNext(), true);
+        equals(enumerator.current, i * 10);
+    }
+    equals(enumerator.moveNext(), false);
+
+}
+
+// ======================================================== Enumerable.range
+function testRange
+{
+    var ary = Enumerable.range(1, 10).toArray();
+    equals(
+        Enumerable.range(1, 10).toArray(),
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    );
+    equals(
+        Enumerable.range(1, 0).toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(0, 1).toArray(),
+        [0]
+    );
+    equals(
+        Enumerable.range(-10, 6, 3).toArray(),
+        [-10, -7, -4, -1, 2, 5]
+    );
+
+    var query = Enumerable.range(0,3);
+    equals(query.toArray(), [0, 1, 2]);
+    equals(query.toArray(), [0, 1, 2]);
+    equals(query.toArray(), [0, 1, 2]);
+}
+
+// ======================================================== Enumerable.repeat
+function testRepeat
+{
+    var enumerator = Enumerable.repeat(10).getEnumerator();
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        equals(enumerator.current, 10);
+    }
+
+    var enumerator = Enumerable.repeat(10, 5).getEnumerator();
+    for (var i = 0; i < 5; ++i) {
+        equals(enumerator.moveNext(), true);
+        equals(enumerator.current, 10);
+    }
+    equals(enumerator.moveNext(), false);
+
+    var enumerator = Enumerable.repeat(10, 0).getEnumerator();
+    equals(enumerator.moveNext(), false);
+
+    var query = Enumerable.repeat(0,3);
+    equals(query.toArray(), [0, 0, 0]);
+    equals(query.toArray(), [0, 0, 0]);
+    equals(query.toArray(), [0, 0, 0]);
+}
+
+// ======================================================== Enumerable.returns
+function testReturns
+{
+    equals(Enumerable.returns(10).toArray(), [10]);
+    equals(Enumerable.returns("").toArray(), [""]);
+    equals(Enumerable.returns(void).toArray(), [void]);
+    equals(Enumerable.returns(null).toArray(), [null]);
+    equals(Enumerable.returns([1,2,3]).toArray(), [[1,2,3]]);
+    equals(Enumerable.returns(%[]).toArray(), [%[]]);
+}
+
+// ======================================================== where
+function testWhere
+{
+    equals(
+        Enumerable.range(1, 5)
+            .where(function(x) { return x % 2 == 0; })
+            .toArray(),
+        [2, 4]
+    );
+    equals(
+        Enumerable.repeat(3, 5)
+            .where(function(x, index, limit) { return x * index <= limit; }, 6)
+            .toArray(),
+        [3, 3, 3]
+    );
+    equals(
+        Enumerable.empty()
+            .where(function(x) { return true; })
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(1, 5)
+            .where("2 < _ ")
+            .toArray(),
+        [3, 4, 5]
+    );
+    equals(
+        Enumerable.from("abcdef")
+            .where("3 <= _2 || _ == 'b'")
+            .toArray()
+            .join(","),
+        "b,d,e,f"
+    );
+}
+
+// ======================================================== select
+function testSelect
+{
+    equals(
+        Enumerable.range(1, 3)
+            .select(function(x) { return x * 2; })
+            .toArray(),
+        [2, 4, 6]
+    );
+    equals(
+        Enumerable.repeat(1, 4)
+            .select(function(x, index, factor) { return x * index * factor; }, 5)
+            .toArray(),
+        [0, 5, 10, 15]
+    );
+    equals(
+        Enumerable.from([])
+            .select(function(x) { return x * 2; })
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(1, 3)
+            .select("_ * 2")
+            .toArray(),
+        [2, 4, 6]
+    );
+    equals(
+        Enumerable.range(0, 5)
+            .select("_ + _2")
+            .toArray(),
+        [0, 2, 4, 6, 8]
+    );
+}
+
+// ======================================================== selectMany
+function testSelectMany
+{
+    equals(
+        Enumerable.from([[1, 2, 3], [10, 20, 30]])
+            .selectMany(function(x) { return x; })
+            .toArray(),
+        [1, 2, 3, 10, 20, 30]
+    );
+    equals(
+        Enumerable.empty()
+            .selectMany(function(x) { return x; })
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.from([[],[],%[],""])
+            .selectMany(function(x) { return x; })
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.from([[[1, 2], 3, 4], [10, [20, 30], 40]])
+            .selectMany("_[_2]")
+            .toArray(),
+        [1, 2, 20, 30]
+    );
+    equals(
+        Enumerable.from([
+                [[1, 2], [3, 4]],
+                [[10, 20], [30, 40]]
+            ])
+            .selectMany("_[_3]", void, 1)
+            .toArray(),
+        [3, 4, 30, 40]
+    );
+}
+
+function testSelectManyWithResultSelector
+{
+    equals(
+        Enumerable.from([
+                %[ key:"key",  values:[1, 2, 3] ],
+                %[ key:"key2", values:[4, 5] ],
+                %[ key:"key3", values:[] ]
+            ])
+            .selectMany(
+                function(x) { return x.values; },
+                function(x, value) { return %[ key:x.key, value:value ]; }
+            )
+            .toArray(),
+        [
+            %[ key:"key",  value:1 ],
+            %[ key:"key",  value:2 ],
+            %[ key:"key",  value:3 ],
+            %[ key:"key2", value:4 ],
+            %[ key:"key2", value:5 ]
+        ]
+    );
+    equals(
+        Enumerable.from([1, 2, 3])
+            .selectMany("[1, 2, 3]", "[_, _2]")
+            .toArray(),
+        [
+            [1, 1], [1, 2], [1, 3],
+            [2, 1], [2, 2], [2, 3],
+            [3, 1], [3, 2], [3, 3]
+        ]
+    );
+    equals(
+        Enumerable.from(["a", "b"])
+            .selectMany("[_2]", "[_2, _]")
+            .toArray(),
+        [[0, "a"], [1, "b"]]
+    );
+    equals(
+        Enumerable.from([1, 2, 3])
+            .selectMany("[1, 2, _3]", "[_4, _, _2]", 3, "tag")
+            .toArray(),
+        [
+            ["tag", 1, 1], ["tag", 1, 2], ["tag", 1, 3],
+            ["tag", 2, 1], ["tag", 2, 2], ["tag", 2, 3],
+            ["tag", 3, 1], ["tag", 3, 2], ["tag", 3, 3]
+        ]
+    );
+}
+
+// ======================================================== concat
+function testConcat
+{
+    equals(
+        Enumerable.repeat(1, 3)
+            .concat(Enumerable.repeat(2, 2))
+            .concat(Enumerable.repeat(3, 1))
+            .toArray(),
+        [1, 1, 1, 2, 2, 3]
+    );
+
+    equals(
+        Enumerable.repeat(1, 0)
+            .concat(Enumerable.repeat(2, 1))
+            .concat(Enumerable.empty())
+            .toArray(),
+        [2]
+    );
+}
+
+// ======================================================== count
+function testCount
+{
+    equals(Enumerable.range(1, 3).count(), 3);
+    equals(Enumerable.empty().count(), 0);
+    equals(Enumerable.range(1, 100).count(), 100);
+    equals(Enumerable.range(0, 10).count(function(x) { return x % 2 == 0; }), 5);
+    equals(Enumerable.range(0, 100).count("_ < 10"), 10);
+    equals(Enumerable.repeat(0, 100).count("false"), 0);
+    equals(Enumerable.range(0, 100).count("_ < _2", 30), 30);
+}
+
+// ======================================================== isEmpty
+function testIsEmpty
+{
+    equals(Enumerable.range(1, 3).isEmpty(), false);
+    equals(Enumerable.empty().isEmpty(), true);
+    equals(Enumerable.repeat(1, 10).isEmpty(), false);
+    equals(Enumerable.returns(void).isEmpty(), false);
+}
+
+// ======================================================== any
+function testAny
+{
+    equals(Enumerable.range(1, 3).any(), true);
+    equals(Enumerable.empty().any(), false);
+    equals(Enumerable.range(0, 10).any(function(x) { return x < 0; }), false);
+    equals(Enumerable.range(0, 10).any(function(x) { return x == 5; }), true);
+    equals(Enumerable.range(0, 10).any("_ > 5"), true);
+    equals(Enumerable.repeat(0, 100).any("false"), false);
+    equals(
+        Enumerable.repeat(0, 100)
+            .any(function(x, a, b) {
+                equals(x, 0);
+                equals(a, "arg");
+                equals(b, "arg2");
+                return false;
+            },  "arg", "arg2"),
+        false
+    );
+}
+
+// ======================================================== all
+function testAll
+{
+    equals(Enumerable.range(1, 3).all(function(x) { return x < 10; }), true);
+    equals(Enumerable.range(1, 3).all(function(x) { return x < 0; }), false);
+    equals(Enumerable.empty().all(function(x) { return false; }), true);
+    equals(Enumerable.range(0, 10).all("_ > 5"), false);
+    equals(Enumerable.repeat(0, 100).all("_ >= 0"), true);
+    equals(
+        Enumerable.repeat(0, 100)
+            .all(function(x, a, b) {
+                equals(x, 0);
+                equals(a, "arg");
+                equals(b, "arg2");
+                return true;
+            },  "arg", "arg2"),
+        true
+    );
+}
+
+// ======================================================== forEach
+function testForEach
+{
+    var context = %[ i:0 ];
+    equals(
+        Enumerable.range(0, 10).forEach(function(x, index, a, b) {
+            equals(x, i);
+            equals(x, index);
+            equals(a, "arg1");
+            equals(b, "arg2");
+            ++i;
+        } incontextof context, "arg1", "arg2"),
+        void
+    );
+    equals(context.i, 10);
+
+    var context = %[ i:0 ];
+    equals(
+        Enumerable.range(0, 10).forEach(function {
+            ++i;
+            return i < 4;
+        } incontextof context),
+        void
+    );
+    equals(context.i, 4);
+
+    var ary = [];
+    equals(
+        Enumerable.range(0, 4).forEach("_3[_2] = _, true", ary),
+        void
+    );
+    equals(ary, [0, 1, 2, 3]);
+}
