@@ -15,12 +15,12 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                 while (self.moveNext()) {
                     ++index;
                     if (predicate(self.current, index, args*)) {
+                        this.result = self.current;
                         return true;
                     }
                 }
                 return false;
             },
-            function { return self.current; },
             this, predicate, args
         );
     },
@@ -40,7 +40,6 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                 }
                 return false;
             },
-            function { return result; },
             this, selector, args
         );
     },
@@ -71,7 +70,6 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                 }
                 return false;
             },
-            function { return result; },
             this, collectionSelector, resultSelector, args
         );
     },
@@ -83,16 +81,19 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             },
             function {
                 if (first.moveNext()) {
+                    this.result = first.current;
                     return true;
                 }
                 if (second !== null) {
                     first = second;
                     second = null;
-                    return first.moveNext();
+                    if (first.moveNext()) {
+                        this.result = first.current;
+                        return true;
+                    }
                 }
                 return false;
             },
-            function { return first.current; },
             this, second
         );
     },

@@ -29,12 +29,16 @@ Scripts.propSet(Enumerable, "from", function(source)
                 this.keys = Scripts.getObjectKeys(source);
                 this.index = -1;
             },
-            function { return ++index < keys.length; },
             function {
-                return %[
+                ++index;
+                if (keys.length <= index) {
+                    return false;
+                }
+                this.result = %[
                     key:keys[index],
                     value:source[keys[index]]
                 ];
+                return true;
             },
             source
         );
@@ -56,8 +60,7 @@ Scripts.propSet(Enumerable, "empty", function()
 {
     return global.Enumerable.createEnumerable(
             function {},
-            function { return false; },
-            function { return null; }
+            function { return false; }
     );
 }, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
 
@@ -80,7 +83,6 @@ Scripts.propSet(Enumerable, "generate", function(generator, count, *)
             this.result = generator(index, args*);
             return true;
         },
-        function { return result; },
         generator, count, *
     );
 }, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
