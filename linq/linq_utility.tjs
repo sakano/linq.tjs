@@ -44,16 +44,16 @@ class EnumerableTemplate
 {
     function EnumerableTemplate(initialize, moveNext, args*)
     {
-        this.initialize = initialize;
-        this.moveNext = moveNext;
-        this.args = args;
+        this.initialize_ = initialize;
+        this.moveNext_ = moveNext;
+        this.args_ = args;
     }
 
     function getEnumerator()
     {
         var enumerator = new global.EnumeratorTemplate();
-        enumerator.moveNext = this.moveNext incontextof enumerator;
-        (this.initialize incontextof enumerator)(args*);
+        enumerator.moveNext = (this.moveNext_ incontextof enumerator);
+        (this.initialize_ incontextof enumerator)(args_*);
         return enumerator;
     }
 }

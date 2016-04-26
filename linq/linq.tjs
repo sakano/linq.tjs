@@ -51,7 +51,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                 this.resultSelector = global.Enumerable.createLambda(resultSelector);
                 this.args = args;
                 this.index = -1;
-                this.selectedCollection = global.Enumerable.empty();
+                this.selectedCollection = global.Enumerable.empty().getEnumerator();
             },
             function {
                 while (selectedCollection.moveNext()) {
