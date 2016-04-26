@@ -97,6 +97,54 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, second
         );
     },
+    skip : function(count) {
+        return global.Enumerable.createEnumerable(
+            function(self, count) {
+                this.self = self.getEnumerator();
+                this.count = count;
+                this.skipped = false;
+            },
+            function {
+                if (!skipped) {
+                    skipped = true;
+                    for (var i = 0; i < count; ++i) {
+                        if (!self.moveNext()) {
+                            return false;
+                        }
+                    }
+                }
+
+                if (self.moveNext()) {
+                    this.result = self.current;
+                    return true;
+                }
+                return false;
+            },
+            this, count
+        );
+    },
+    take : function(count) {
+        return global.Enumerable.createEnumerable(
+            function(self, count) {
+                this.self = self.getEnumerator();
+                this.count = count;
+                this.takenCount = 0;
+            },
+            function {
+                if (count <= takenCount) {
+                    return false;
+                }
+                ++takenCount;
+
+                if (self.moveNext()) {
+                    this.result = self.current;
+                    return true;
+                }
+                return false;
+            },
+            this, count
+        );
+    },
     count : function(predicate = function { return true; }, args*)
     {
         predicate = global.Enumerable.createLambda(predicate);

@@ -372,6 +372,81 @@ function testConcat
     );
 }
 
+// ======================================================== skip
+function testSkip
+{
+    equals(
+        Enumerable.repeat(1, 5)
+            .skip(3)
+            .toArray(),
+        [1, 1]
+    );
+    equals(
+        Enumerable.empty()
+            .skip(3)
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(1, 5)
+            .skip(0)
+            .toArray(),
+        [1, 2, 3, 4, 5]
+    );
+
+    var called = [];
+    var enumerator = Enumerable.range(1,5)
+        .select(function(value, index, called) {
+            // won't be called until moveNext called
+            called.add(value);
+            return value;
+        }, called)
+        .skip(3)
+        .getEnumerator();
+    equals(called, []);
+
+    equals(enumerator.moveNext(), true);
+    equals(enumerator.current, 4);
+    equals(called, [1, 2, 3, 4]);
+
+    equals(enumerator.moveNext(), true);
+    equals(enumerator.current, 5);
+    equals(called, [1, 2, 3, 4, 5]);
+
+    equals(enumerator.moveNext(), false);
+    equals(called, [1, 2, 3, 4, 5]);
+}
+
+// ======================================================== take
+function testTake
+{
+    equals(
+        Enumerable.range(1, 5)
+            .take(3)
+            .toArray(),
+        [1, 2, 3]
+    );
+    equals(
+        Enumerable.empty()
+            .take(3)
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.repeat(1, 5)
+            .take(0)
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.from("abcd")
+            .take(2)
+            .toArray()
+            .join(""),
+        "ab"
+    );
+}
+
 // ======================================================== count
 function testCount
 {
