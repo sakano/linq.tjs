@@ -447,6 +447,88 @@ function testTake
     );
 }
 
+// ======================================================== skipWhile
+function testSkipWhile
+{
+    equals(
+        Enumerable.range(1, 10)
+            .skipWhile(function(x) { return x < 5; })
+            .toArray(),
+         [5, 6, 7, 8, 9, 10]
+    );
+    equals(
+        Enumerable.empty()
+            .skipWhile(function { return false; })
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.repeat(0, 5)
+            .skipWhile(function { return true; })
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(0, 5, -1)
+            .skipWhile("-3 <= _")
+            .toArray(),
+        [-4]
+    );
+    equals(
+        Enumerable.repeat(10, 5)
+            .skipWhile("_2 < 3")
+            .toArray(),
+        [10, 10]
+    );
+    equals(
+        Enumerable.repeat(0, 5)
+            .skipWhile("_2 < _3", 4)
+            .toArray(),
+        [0],
+    );
+}
+
+// ======================================================== takeWhile
+function testTakeWhile
+{
+    equals(
+        Enumerable.range(1, 10)
+            .takeWhile(function(x) { return x < 5; })
+            .toArray(),
+         [1, 2, 3, 4]
+    );
+    equals(
+        Enumerable.empty()
+            .takeWhile(function { return true; })
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.repeat(0, 5)
+            .takeWhile(function { return false; })
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(0, 5, -1)
+            .takeWhile("-3 <= _")
+            .toArray(),
+        [0, -1, -2, -3]
+    );
+    equals(
+        Enumerable.repeat(10, 5)
+            .takeWhile("_2 < 3")
+            .toArray(),
+        [10, 10, 10]
+    );
+    equals(
+        Enumerable.repeat(0, 5)
+            .takeWhile("_2 < _3", 3)
+            .toArray(),
+        [0, 0, 0],
+    );
+}
+
 // ======================================================== count
 function testCount
 {

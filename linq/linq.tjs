@@ -98,19 +98,33 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         );
     },
     skip : function(count) {
+        return this.skipWhile(function(x, index, count) {
+            return index < count;
+        }, count);
+    },
+    take : function(count) {
+        return this.takeWhile(function(x, index, count) {
+            return index < count;
+        }, count);
+    },
+    skipWhile : function(predicate, args*) {
         return global.Enumerable.createEnumerable(
-            function(self, count) {
+            function(self, predicate, args) {
                 this.self = self.getEnumerator();
-                this.count = count;
+                this.predicate = global.Enumerable.createLambda(predicate);
+                this.args = args;
                 this.skipped = false;
             },
             function {
                 if (!skipped) {
                     skipped = true;
-                    for (var i = 0; i < count; ++i) {
-                        if (!self.moveNext()) {
-                            return false;
+                    var index = 0;
+                    while (self.moveNext()) {
+                        if (!predicate(self.current, index,  args*)) {
+                            this.result = self.current;
+                            return true;
                         }
+                        ++index;
                     }
                 }
 
@@ -120,29 +134,32 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                 }
                 return false;
             },
-            this, count
+            this, predicate, args
         );
     },
-    take : function(count) {
+    takeWhile : function(predicate, args*) {
         return global.Enumerable.createEnumerable(
-            function(self, count) {
+            function(self, predicate, args) {
                 this.self = self.getEnumerator();
-                this.count = count;
-                this.takenCount = 0;
+                this.predicate = global.Enumerable.createLambda(predicate);
+                this.args = args;
+                this.index = -1;
+                this.taken = false;
             },
             function {
-                if (count <= takenCount) {
+                if (!self.moveNext() || this.taken) {
                     return false;
                 }
-                ++takenCount;
 
-                if (self.moveNext()) {
+                ++index;
+                if (predicate(self.current, index, args*)) {
                     this.result = self.current;
                     return true;
                 }
+                this.taken = true;
                 return false;
             },
-            this, count
+            this, predicate, args
         );
     },
     count : function(predicate = function { return true; }, args*)
