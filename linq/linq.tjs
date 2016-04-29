@@ -85,7 +85,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                 if (!initialized) {
                     initialized = true;
                     if (!self.moveNext()) {
-                        throw new Exception("scan:Source contains no element");
+                        return false;
                     }
                     this.accumulated = self.current;
                 }

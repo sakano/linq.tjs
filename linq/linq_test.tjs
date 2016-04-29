@@ -361,18 +361,15 @@ function testScan
             .toArray(),
         [1+2, 1+2+3, 1+2+3+4, 1+2+3+4+5]
     );
-    throws(
-        "Exception",
-        "scan:Source contains no element",
-        function {
-            Enumerable.empty()
-                .scan(function(a,x){ return a + x; })
-                .toArray();
-        }
+    equals(
+        Enumerable.empty()
+            .scan(function { throw new Exception(); })
+            .toArray(),
+        []
     );
     equals(
         Enumerable.range(1,1)
-            .scan(function(a, x) { throw new Exception(); })
+            .scan(function { throw new Exception(); })
             .toArray(),
         []
     );
