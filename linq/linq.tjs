@@ -73,6 +73,54 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, collectionSelector, resultSelector, args
         );
     },
+    scan : function(accumulator, args*) {
+        return global.Enumerable.createEnumerable(
+            function(self, accumulator, args) {
+                this.self = self.getEnumerator();
+                this.accumulator = global.Enumerable.createLambda(accumulator);
+                this.args = args;
+                this.initialized = false;
+            },
+            function {
+                if (!initialized) {
+                    initialized = true;
+                    if (!self.moveNext()) {
+                        throw new Exception("source contains no element");
+                    }
+                    this.accumulated = self.current;
+                }
+
+                if (self.moveNext()) {
+                    this.result = accumulated = accumulator(accumulated, self.current, args*);
+                    return true;
+                }
+                return false;
+            },
+            this, accumulator, args
+        );
+    },
+    scanWithSeed : function(seed, accumulator, args*) {
+        return this.startWith(seed).scan(accumulator, args*);
+        return global.Enumerable.createEnumerable(
+            function(self, seed, accumulator, args) {
+                this.self = self.getEnumerator();
+                this.seed = seed;
+                this.accumulator = global.Enumerable.createLambda(accumulator);
+                this.args = args;
+            },
+            function {
+                if (self.moveNext()) {
+                    this.result = seed = accumulator(seed, self.current, args*);
+                    return true;
+                }
+                return false;
+            },
+            this, seed, accumulator, args
+        );
+    },
+    startWith : function(values*) {
+        return global.Enumerable.from(values).concat(this);
+    },
     concat : function(second) {
         return global.Enumerable.createEnumerable(
             function(self, second) {
