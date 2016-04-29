@@ -507,6 +507,23 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         }
         return result;
     },
+    toDictionary : function(keySelector, elementSelector = function(x) { return x; }, args*)
+    {
+        keySelector = global.Enumerable.createLambda(keySelector);
+        elementSelector = global.Enumerable.createLambda(elementSelector);
+
+        var result = %[];
+        var enumerator = getEnumerator();
+        for (var index = 0; enumerator.moveNext(); ++index) {
+            var current = enumerator.current;
+            var key = keySelector(current, index, args*);
+            if (result[key] !== void) {
+                throw new Exception("toDictionary:keySelector produces duplicate keys");
+            }
+            result[key] = elementSelector(current, index, args*);
+        }
+        return result;
+    }
 ], Scripts.pfStaticMember | Scripts.pfMemberEnsure);
 
 

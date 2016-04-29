@@ -82,6 +82,43 @@ function testToArray
     equals(Enumerable.from(%[ key:123 ]).toArray(), [ %[ key:"key", value:123 ] ]);
 }
 
+// ======================================================== toDictionary
+function testToDictionary
+{
+    equals(
+        Enumerable.range(1, 3)
+            .toDictionary(function(x) { return x; }),
+        %[ "1"=>1, "2"=>2, "3"=>3 ]
+    ) ;
+    equals(
+        Enumerable.empty()
+            .toDictionary(function(x) { throw new Exception("never called");}),
+        %[]
+    );
+    equals(
+        Enumerable.repeat(2, 4)
+            .toDictionary(
+                function(x, index) { return @"${x}*${index}"; },
+                function(x, index) { return x * index; }
+            ),
+        %[ "2*0"=>0, "2*1"=>2, "2*2"=>4, "2*3"=>6 ]
+    );
+    equals(
+        Enumerable.range(1, 3).toDictionary("_"),
+        %[ "1"=>1, "2"=>2, "3"=>3 ]
+    );
+    equals(
+        Enumerable.range(-1, 3, -1)
+            .toDictionary("_2 * _3", "_ * _4", 10, 100),
+        %[ "0"=>-100, "10"=>-200, "20"=>-300 ]
+    );
+    throws(
+        "Exception",
+        "toDictionary:keySelector produces duplicate keys",
+        function { Enumerable.repeat(1, 2).toDictionary("_"); }
+    );
+}
+
 // ======================================================== Enumerable.empty
 function testEmpty
 {
