@@ -882,6 +882,32 @@ function testAll
         true
     );
 }
+// ======================================================== sequenceEqual
+function testSequenceEqual
+{
+    equals(Enumerable.range(0, 3).sequenceEqual([0, 1, 2]), true);
+    equals(Enumerable.range(0, 3).sequenceEqual(Enumerable.range(0,3)), true);
+    equals(Enumerable.range(0, 4).sequenceEqual([0, 1, 2]), false);
+    equals(Enumerable.range(0, 4).sequenceEqual([]), false);
+    equals(Enumerable.empty().sequenceEqual([]), true);
+    equals(Enumerable.empty().sequenceEqual(Enumerable.empty()), true);
+    equals(Enumerable.empty().sequenceEqual([1, 2, 3]), false);
+    equals(Enumerable.repeat(0, 4).sequenceEqual([0, 0, 0]), false);
+    equals(Enumerable.repeat(0, 3).sequenceEqual([0, 0, 0, 0]), false);
+    equals(Enumerable.repeat("0", 1).sequenceEqual([0]), false);
+
+    var arg = %[ called:0 ];
+    equals(Enumerable.empty()
+        .sequenceEqual(
+            Enumerable.generate(
+                function(index, arg) { return ++arg.called; },
+                3, arg
+            )
+        ),
+        false
+    );
+    equals(arg.called, 1);
+}
 
 // ======================================================== elementAt
 function testElementAt

@@ -347,6 +347,26 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         }
         return true;
     },
+    sequenceEqual : function(second, comparer = function(a, b) { return a === b; }, args*)
+    {
+        comparer = global.Enumerable.createLambda(comparer);
+
+        var first = this.getEnumerator();
+        var second = Enumerable.from(second).getEnumerator();
+        for (var index = 0; ; ++index) {
+            var firstExist = first.moveNext();
+            var secondExist = second.moveNext();
+            if (firstExist !== secondExist) {
+                return false;
+            }
+            if (!firstExist) {
+                return true;
+            }
+            if (!comparer(first.current, second.current, index, args*)) {
+                return false;
+            }
+        }
+    },
     elementAt : function(index)
     {
         var enumerator = this.getEnumerator();
