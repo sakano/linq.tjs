@@ -1005,6 +1005,66 @@ function testLastOrDefault
     equals(Enumerable.repeat(1, 10).lastOrDefault(-1, "false"), -1);
 }
 
+// ======================================================== single
+function testSingle
+{
+    equals(Enumerable.range(0, 1).single(), 0);
+    equals(Enumerable.range(0, 2)
+        .single(function(x) { return x != 0; }),
+        1
+    );
+    equals(Enumerable.range(0, 5, 2)
+        .single("_ == _2"),
+        0
+    );
+    equals(Enumerable.range(0, 5, 2)
+        .single("_ == _3", 8),
+        8
+    );
+    throws(
+        "Exception",
+        "single:No element satisfies the condition",
+        function { Enumerable.empty().single(); }
+    );
+    throws(
+        "Exception",
+        "single:No element satisfies the condition",
+        function { Enumerable.empty().single(function { throw new Exception("never called"); }); }
+    );
+    throws(
+        "Exception",
+        "single:No element satisfies the condition",
+        function { Enumerable.repeat(1, 4).single(function(x) { return false; }); }
+    );
+    throws(
+        "Exception",
+        "singleOrDefault:More than one element satisfies the condition",
+        function { Enumerable.repeat(1, 4).single(function(x) { return true; }); }
+    );
+}
+
+// ======================================================== singleOrDefault
+function testSingleOrDefault
+{
+    equals(Enumerable.range(0, 1).singleOrDefault(-1), 0);
+    equals(Enumerable.empty().singleOrDefault(-1), -1);
+    equals(Enumerable.range(0, 5)
+        .singleOrDefault(-1, function(x) { return x == 3; }),
+        3
+    );
+    equals(Enumerable.range(3, 5)
+        .singleOrDefault(-1, function(x, index, arg) { return index == arg; }, 3),
+        6
+    );
+    equals(Enumerable.range(-1,3).singleOrDefault(-1, "1 < _2"), 1);
+    equals(Enumerable.range(1,5).singleOrDefault(-1, "false"), -1);
+    throws(
+        "Exception",
+        "singleOrDefault:More than one element satisfies the condition",
+        function { Enumerable.repeat(1, 4).singleOrDefault(-1, "0 <= _"); }
+    );
+}
+
 // ======================================================== aggregate
 function testAggregate
 {

@@ -412,6 +412,34 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         }
         return result;
     },
+    single : function(predicate, args*)
+    {
+        var defaultValue = [];
+        var result = this.singleOrDefault(defaultValue, predicate, args*);
+        if (result === defaultValue) {
+            throw new Exception("single:No element satisfies the condition");
+        }
+        return result;
+    },
+    singleOrDefault : function(defaultValue, predicate, args*)
+    {
+        predicate = global.Enumerable.createLambda(predicate);
+
+        var enumerator = this.getEnumerator();
+        var index = -1;
+        var result = defaultValue;
+        var found = false;
+        while (enumerator.moveNext()) {
+            if (predicate == void || predicate(enumerator.current, ++index, args*)) {
+                if (found) {
+                    throw new Exception("singleOrDefault:More than one element satisfies the condition");
+                }
+                result = enumerator.current;
+                found = true;
+            }
+        }
+        return result;
+    },
     aggregate : function(accumulator, resultSelector = function(x) { return x; }, args*)
     {
         accumulator = global.Enumerable.createLambda(accumulator);
