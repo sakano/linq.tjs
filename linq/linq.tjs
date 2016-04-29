@@ -3,7 +3,8 @@ if (typeof Scripts.getObjectKeys === "undefined") {
 }
 
 Scripts.propSet(Enumerable, "extensionMethods", %[
-    where : function(predicate, args*) {
+    where : function(predicate, args*)
+    {
         return global.Enumerable.createEnumerable(
             function(self, predicate, args) {
                 this.self = self.getEnumerator();
@@ -24,7 +25,8 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, predicate, args
         );
     },
-    select : function(selector, args*) {
+    select : function(selector, args*)
+    {
         return global.Enumerable.createEnumerable(
             function(self, selector, args) {
                 this.self = self.getEnumerator();
@@ -43,7 +45,8 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, selector, args
         );
     },
-    selectMany : function(collectionSelector, resultSelector = function(a, b) { return b; }, args*) {
+    selectMany : function(collectionSelector, resultSelector = function(a, b) { return b; }, args*)
+    {
         return global.Enumerable.createEnumerable(
             function(self, collectionSelector, resultSelector, args) {
                 this.self = self.getEnumerator();
@@ -73,7 +76,8 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, collectionSelector, resultSelector, args
         );
     },
-    scan : function(accumulator, args*) {
+    scan : function(accumulator, args*)
+    {
         return global.Enumerable.createEnumerable(
             function(self, accumulator, args) {
                 this.self = self.getEnumerator();
@@ -99,7 +103,8 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, accumulator, args
         );
     },
-    scanWithSeed : function(seed, accumulator, args*) {
+    scanWithSeed : function(seed, accumulator, args*)
+    {
         return this.startWith(seed).scan(accumulator, args*);
         return global.Enumerable.createEnumerable(
             function(self, seed, accumulator, args) {
@@ -118,10 +123,46 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, seed, accumulator, args
         );
     },
-    startWith : function(values*) {
+    distinct : function(selector, args*)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, selector, args*) {
+                this.self = self.getEnumerator();
+                this.selector = global.Enumerable.createLambda(selector);
+                this.args = args;
+                this.bannedElements = %[];
+                this.specialValues = [ void, "" ];
+                this.bannedSpecialValues = [];
+            },
+            function {
+                while (self.moveNext()) {
+                    var key = selector === void
+                        ? self.current
+                        : selector(self.current);
+                    var specialIndex = specialValues.find(key);
+                    if (specialIndex >= 0) {
+                        if (bannedSpecialValues[specialIndex] === void) {
+                            bannedSpecialValues[specialIndex] = true;
+                            this.result = self.current;
+                            return true;
+                        }
+                    } else if (bannedElements[key] === void) {
+                        bannedElements[key] = true;
+                        this.result = self.current;
+                        return true;
+                    }
+                }
+                return false;
+            },
+            this, selector, args
+        );
+    },
+    startWith : function(values*)
+    {
         return global.Enumerable.from(values).concat(this);
     },
-    concat : function(second) {
+    concat : function(second)
+    {
         return global.Enumerable.createEnumerable(
             function(self, second) {
                 this.first = self.getEnumerator();
@@ -145,17 +186,20 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, second
         );
     },
-    skip : function(count) {
+    skip : function(count)
+    {
         return this.skipWhile(function(x, index, count) {
             return index < count;
         }, count);
     },
-    take : function(count) {
+    take : function(count)
+    {
         return this.takeWhile(function(x, index, count) {
             return index < count;
         }, count);
     },
-    skipWhile : function(predicate, args*) {
+    skipWhile : function(predicate, args*)
+    {
         return global.Enumerable.createEnumerable(
             function(self, predicate, args) {
                 this.self = self.getEnumerator();
@@ -185,7 +229,8 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, predicate, args
         );
     },
-    takeWhile : function(predicate, args*) {
+    takeWhile : function(predicate, args*)
+    {
         return global.Enumerable.createEnumerable(
             function(self, predicate, args) {
                 this.self = self.getEnumerator();
