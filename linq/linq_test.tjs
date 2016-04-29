@@ -502,6 +502,37 @@ function testStartWith
     );
 }
 
+
+// ======================================================== defaultIfEmpty
+function testDefaultIfEmpty
+{
+    equals(
+        Enumerable.range(1,3)
+            .defaultIfEmpty(-1)
+            .toArray(),
+        [1, 2, 3]
+    );
+    equals(
+        Enumerable.repeat(1,1)
+            .defaultIfEmpty(-1)
+            .toArray(),
+        [1]
+    );
+    equals(
+        Enumerable.empty()
+            .defaultIfEmpty(-1)
+            .toArray(),
+        [-1]
+    );
+    equals(
+        Enumerable.empty()
+            .defaultIfEmpty(0)
+            .defaultIfEmpty(1)
+            .toArray(),
+        [0]
+    );
+}
+
 // ======================================================== concat
 function testConcat
 {

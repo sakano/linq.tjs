@@ -161,6 +161,30 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
     {
         return global.Enumerable.from(values).concat(this);
     },
+    defaultIfEmpty : function(defaultValue)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, defaultValue) {
+                this.self = self.getEnumerator();
+                this.defaultValue = defaultValue;
+                this.empty = true;
+            },
+            function {
+                if (self.moveNext()) {
+                    empty = false;
+                    this.result = self.current;
+                    return true;
+                }
+                if (empty) {
+                    empty = false;
+                    this.result = defaultValue;
+                    return true;
+                }
+                return false;
+            },
+            this, defaultValue
+        );
+    },
     concat : function(second)
     {
         return global.Enumerable.createEnumerable(
