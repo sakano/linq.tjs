@@ -880,6 +880,74 @@ function testAggregateWithSeed
     );
 }
 
+// ======================================================== average
+function testAverage
+{
+    equals(Enumerable.range(0,10).average(), 4.5);
+    equals(Enumerable.range(0,10,-1).average(), -4.5);
+    equals(Enumerable.range(0,10).average(function(x) { return x * 2; }), 9.0);
+    throws(
+        "Exception",
+        "average:Source contains no element",
+        function {
+            Enumerable.empty().average(function { throw new Exception("never called"); });
+        }
+    );
+    equals(Enumerable.range(1,2).average("_ * _2"), (real)(1*0 + 2*1)/2);
+    equals(Enumerable.range(1,3).average("_ * _3", 5), (real)(1*5 + 2*5 + 3*5)/3);
+}
+
+// ======================================================== max
+function testMax
+{
+    equals(Enumerable.range(0,10).max(), 9);
+    equals(Enumerable.range(0,10,-1).max(), 0);
+    equals(Enumerable.range(0,10).max(function(x) { return x * 2; }), 18);
+    throws(
+        "Exception",
+        "aggregate:Source contains no element",
+        function {
+            Enumerable.empty().max(function { throw new Exception("never called"); });
+        }
+    );
+    equals(Enumerable.range(1,3).max("_ * _2"), 3*2);
+    equals(Enumerable.range(0,10).max("_ * _3", 5), 9*5);
+}
+
+// ======================================================== min
+function testMin
+{
+    equals(Enumerable.range(0,10).min(), 0);
+    equals(Enumerable.range(0,10,-1).min(), -9);
+    equals(Enumerable.range(0,10).min(function(x) { return x * -2; }), -18);
+    throws(
+        "Exception",
+        "aggregate:Source contains no element",
+        function {
+            Enumerable.empty().min(function { throw new Exception("never called"); });
+        }
+    );
+    equals(Enumerable.range(1,3).min("_ * _2"), 1*0);
+    equals(Enumerable.range(3,10).min("_ * _3", 5), 3*5);
+}
+
+// ======================================================== sum
+function testSum
+{
+    equals(Enumerable.range(0,10).sum(), 45);
+    equals(Enumerable.range(0,10,-1).sum(), -45);
+    equals(Enumerable.range(0,10).sum(function(x) { return x * 2; }), 90);
+    throws(
+        "Exception",
+        "aggregate:Source contains no element",
+        function {
+            Enumerable.empty().sum(function { throw new Exception("never called"); });
+        }
+    );
+    equals(Enumerable.range(1,3).sum("_ * _2"), 1*0+2*1+3*2);
+    equals(Enumerable.range(1,3).sum("_ * _3", 5), 1*5+2*5+3*5);
+}
+
 // ======================================================== forEach
 function testForEach
 {

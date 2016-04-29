@@ -339,6 +339,59 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
     {
         return this.startWith(seed).aggregate(accumulator, resultSelector, args*);
     },
+    average : function(selector, args*)
+    {
+        selector = global.Enumerable.createLambda(selector);
+
+        var sum = 0;
+        var count = 0;
+        var enumerator = this.getEnumerator();
+        while (enumerator.moveNext()) {
+            sum +=
+                selector === void
+                ? enumerator.current
+                : selector(enumerator.current, count, args*);
+            ++count;
+        }
+
+        if (count === 0) {
+            throw new Exception("average:Source contains no element");
+        }
+        return sum / count;
+    },
+    max : function(selector, args*)
+    {
+        var query = this;
+        if (selector !== void) {
+            query = query.select(selector, args*);
+        }
+        return query.aggregate(
+            function(a, b) { return a > b ? a : b; },
+            void,
+            args*);
+    },
+    min : function(selector, args*)
+    {
+        var query = this;
+        if (selector !== void) {
+            query = query.select(selector, args*);
+        }
+        return query.aggregate(
+            function(a, b) { return a < b ? a : b; },
+            void,
+            args*);
+    },
+    sum : function(selector, args*)
+    {
+        var query = this;
+        if (selector !== void) {
+            query = query.select(selector, args*);
+        }
+        return query.aggregate(
+            function(a, b) { return a + b; },
+            void,
+            args*);
+    },
     forEach : function(callback, args*)
     {
         callback = global.Enumerable.createLambda(callback);
