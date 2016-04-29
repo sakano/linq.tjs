@@ -85,7 +85,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                 if (!initialized) {
                     initialized = true;
                     if (!self.moveNext()) {
-                        throw new Exception("source contains no element");
+                        throw new Exception("scan:Source contains no element");
                     }
                     this.accumulated = self.current;
                 }
@@ -253,6 +253,51 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             }
         }
         return true;
+    },
+    first : function(predicate, args*)
+    {
+        var defaultValue = [];
+        var result = this.firstOrDefault(defaultValue, predicate, args*);
+        if (result === defaultValue) {
+            throw new Exception("first:No element satisfies the condition");
+        }
+        return result;
+    },
+    firstOrDefault : function(defaultValue, predicate, args*)
+    {
+        predicate = global.Enumerable.createLambda(predicate);
+
+        var enumerator = this.getEnumerator();
+        var index = -1;
+        while (enumerator.moveNext()) {
+            if (predicate == void || predicate(enumerator.current, ++index, args*)) {
+                return enumerator.current;
+            }
+        }
+        return defaultValue;
+    },
+    last : function(predicate, args*)
+    {
+        var defaultValue = [];
+        var result = this.lastOrDefault(defaultValue, predicate, args*);
+        if (result === defaultValue) {
+            throw new Exception("last:No element satisfies the condition");
+        }
+        return result;
+    },
+    lastOrDefault : function(defaultValue, predicate, args*)
+    {
+        predicate = global.Enumerable.createLambda(predicate);
+
+        var enumerator = this.getEnumerator();
+        var result = defaultValue;
+        var index = -1;
+        while (enumerator.moveNext()) {
+            if (predicate === void || predicate(enumerator.current, ++index, args*)) {
+                result = enumerator.current;
+            }
+        }
+        return result;
     },
     forEach : function(callback, args*)
     {

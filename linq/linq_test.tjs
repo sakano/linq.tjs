@@ -363,7 +363,7 @@ function testScan
     );
     throws(
         "Exception",
-        "source contains no element",
+        "scan:Source contains no element",
         function {
             Enumerable.empty()
                 .scan(function(a,x){ return a + x; })
@@ -679,6 +679,82 @@ function testAll
             },  "arg", "arg2"),
         true
     );
+}
+
+// ======================================================== first
+function testFirst
+{
+    equals(Enumerable.range(0,5).first(), 0);
+    equals(Enumerable.range(0,5)
+        .first(function(x) { return 3 <= x; }),
+        3
+    );
+    equals(Enumerable.range(1,5).first("2 <= _ "), 2);
+    equals(Enumerable.range(1,5).first("1 <= _2 "), 2);
+    equals(Enumerable.range(1,5).first("_3 <= _2 ", 3), 4);
+    throws(
+        "Exception",
+        "first:No element satisfies the condition",
+        function { Enumerable.empty().first(); }
+    );
+    throws(
+        "Exception",
+        "first:No element satisfies the condition",
+        function { Enumerable.repeat(1,4).first(function(x) { return false; }); }
+    );
+}
+
+// ======================================================== firstOrDefault
+function testFirstOrDefault
+{
+    equals(Enumerable.range(0,5).firstOrDefault(-1), 0);
+    equals(Enumerable.empty().firstOrDefault(-1), -1);
+    equals(Enumerable.range(0,5)
+        .firstOrDefault(-1, function(x) { return 3 <= x; }),
+        3
+    );
+    equals(Enumerable.range(1,5).firstOrDefault(-1, "2 <= _ "), 2);
+    equals(Enumerable.range(1,5).firstOrDefault(-1, "1 <= _2 "), 2);
+    equals(Enumerable.range(1,5).firstOrDefault(-1, "_3 <= _2 ", 3), 4);
+    equals(Enumerable.repeat(1,10).firstOrDefault(-1, "false"), -1);
+}
+
+// ======================================================== last
+function testLast
+{
+    equals(Enumerable.range(0,5).last(), 4);
+    equals(Enumerable.range(0,5)
+        .last(function(x) { return 3 <= x; }),
+        4
+    );
+    equals(Enumerable.range(1,5).last("_ < 2"), 1);
+    equals(Enumerable.range(1,5).last("_2 < 3"), 3);
+    equals(Enumerable.range(1,5).last("_3 <= _2 ", 3), 5);
+    throws(
+        "Exception",
+        "last:No element satisfies the condition",
+        function { Enumerable.empty().last(); }
+    );
+    throws(
+        "Exception",
+        "last:No element satisfies the condition",
+        function { Enumerable.repeat(1,4).last(function(x) { return false; }); }
+    );
+}
+
+// ======================================================== lastOrDefault
+function testLastOrDefault
+{
+    equals(Enumerable.range(0,5).lastOrDefault(-1), 4);
+    equals(Enumerable.empty().lastOrDefault(-1), -1);
+    equals(Enumerable.range(0,5)
+        .lastOrDefault(-1, function(x) { return 3 <= x; }),
+        4
+    );
+    equals(Enumerable.range(1,5).lastOrDefault(-1, "_ <= 2"), 2);
+    equals(Enumerable.range(1,5).lastOrDefault(-1, "1 <= _2 "), 5);
+    equals(Enumerable.range(1,5).lastOrDefault(-1, "_ <= _3 ", 3), 3);
+    equals(Enumerable.repeat(1,10).lastOrDefault(-1, "false"), -1);
 }
 
 // ======================================================== forEach
