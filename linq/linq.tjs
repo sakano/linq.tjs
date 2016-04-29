@@ -210,6 +210,30 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, second
         );
     },
+    zip : function(second, resultSelector, args*)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, second, resultSelector, args) {
+                this.first = self.getEnumerator();
+                this.second = second.getEnumerator();
+                this.resultSelector = global.Enumerable.createLambda(resultSelector);
+                this.args = args;
+                this.index = -1;
+            },
+            function {
+                var firstExist = first.moveNext();
+                var secondExist = second.moveNext();
+                if (!firstExist || !secondExist) {
+                    return false;
+                }
+
+                ++index;
+                this.result = resultSelector(first.current, second.current, index, args*);
+                return true;
+            },
+            this, second, resultSelector, args
+        );
+    },
     skip : function(count)
     {
         return this.skipWhile(function(x, index, count) {

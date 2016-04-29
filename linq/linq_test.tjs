@@ -553,6 +553,79 @@ function testConcat
     );
 }
 
+// ======================================================== zip
+function testZip
+{
+    equals(
+        Enumerable.repeat("key", 3)
+            .zip(
+                Enumerable.range(0,3),
+                function(a, b) { return [a, b]; }
+            )
+            .toArray(),
+        [["key", 0], ["key", 1], ["key", 2]]
+    );
+    equals(
+        Enumerable.repeat("key", 2)
+            .zip(
+                Enumerable.range(0,3),
+                function(a, b) { return [a, b]; }
+            )
+            .toArray(),
+        [["key", 0], ["key", 1]]
+    );
+    equals(
+        Enumerable.repeat("key", 3)
+            .zip(
+                Enumerable.range(0,1),
+                function(a, b) { return [a, b]; }
+            )
+            .toArray(),
+        [["key", 0]]
+    );
+    equals(
+        Enumerable.empty()
+            .zip(
+                Enumerable.range(0,2),
+                function { throw new Exception("never called"); }
+            )
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(0,3)
+            .zip(
+                Enumerable.empty(),
+                function { throw new Exception("never called"); }
+            )
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.empty()
+            .zip(
+                Enumerable.empty(),
+                function { throw new Exception("never called"); }
+            )
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.repeat("key", 3)
+            .zip(
+                Enumerable.range(3,5),
+                function(a, b, index) { return [a, index, b]; }
+            )
+            .toArray(),
+        [["key", 0, 3], ["key", 1, 4], ["key", 2, 5]]
+    );
+    equals(
+        Enumerable.repeat("key", 3)
+            .zip(Enumerable.range(10,3), "[_, _2, _3, _4]", -1)
+            .toArray(),
+        [["key", 10, 0, -1], ["key", 11, 1, -1], ["key", 12, 2, -1]]
+    );
+}
 // ======================================================== skip
 function testSkip
 {
