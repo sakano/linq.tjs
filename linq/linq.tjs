@@ -571,6 +571,32 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             result[key] = elementSelector(current, index, args*);
         }
         return result;
+    },
+    trace : function(logger = global.Debug.message, args*)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, logger, args) {
+                this.self = self.getEnumerator();
+                this.logger = logger;
+                this.args = args;
+                this.index = -1;
+            },
+            function {
+                if (!self.moveNext()) return false;
+                this.result = self.current;
+                ++index;
+                logger(index, result, args*);
+                return true;
+            },
+            this, logger, args
+        );
+    },
+    force : function()
+    {
+        var enumerator = this.getEnumerator();
+        try {
+            while (enumerator.moveNext()) {}
+        } catch {}
     }
 ], Scripts.pfStaticMember | Scripts.pfMemberEnsure);
 
