@@ -681,6 +681,34 @@ function testAll
     );
 }
 
+// ======================================================== elementAt
+function testElementAt
+{
+    equals(Enumerable.range(1,5).elementAt(0), 1);
+    equals(Enumerable.range(1,5).elementAt(1), 2);
+    equals(Enumerable.range(1,5).elementAt(4), 5);
+    throws(
+        "Exception",
+        "elementAt:No element at the specified index",
+        function { Enumerable.range(1,5).elementAt(5); }
+    );
+    throws(
+        "Exception",
+        "elementAt:No element at the specified index",
+        function { Enumerable.empty().elementAt(0); }
+    );
+}
+
+// ======================================================== elementAtOrDefault
+function testElementAtOrDefault
+{
+    equals(Enumerable.range(1,5).elementAtOrDefault(0, -1), 1);
+    equals(Enumerable.range(1,5).elementAtOrDefault(1, -1), 2);
+    equals(Enumerable.range(1,5).elementAtOrDefault(4, -1), 5);
+    equals(Enumerable.range(1,5).elementAtOrDefault(5, -1), -1);
+    equals(Enumerable.empty().elementAtOrDefault(0, -1), -1);
+}
+
 // ======================================================== first
 function testFirst
 {

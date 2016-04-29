@@ -254,6 +254,26 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         }
         return true;
     },
+    elementAt : function(index)
+    {
+        var enumerator = this.getEnumerator();
+        for (var i = 0; i <= index; ++i) {
+            if (!enumerator.moveNext()) {
+                throw new Exception("elementAt:No element at the specified index");
+            }
+        }
+        return enumerator.current;
+    },
+    elementAtOrDefault : function(index, defaultValue)
+    {
+        var enumerator = this.getEnumerator();
+        for (var i = 0; i <= index; ++i) {
+            if (!enumerator.moveNext()) {
+                return defaultValue;
+            }
+        }
+        return enumerator.current;
+    },
     first : function(predicate, args*)
     {
         var defaultValue = [];
