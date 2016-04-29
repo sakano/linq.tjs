@@ -319,6 +319,26 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         }
         return result;
     },
+    aggregate : function(accumulator, resultSelector = function(x) { return x; }, args*)
+    {
+        accumulator = global.Enumerable.createLambda(accumulator);
+        resultSelector = global.Enumerable.createLambda(resultSelector);
+
+        var enumerator = this.getEnumerator();
+        if (!enumerator.moveNext()) {
+            throw new Exception("aggregate:Source contains no element");
+        }
+
+        var accumulated = enumerator.current;
+        while (enumerator.moveNext()) {
+            accumulated = accumulator(accumulated, enumerator.current, args*);
+        }
+        return resultSelector(accumulated, args*);
+    },
+    aggregateWithSeed : function(seed, accumulator, resultSelector = function(x) { return x; }, args*)
+    {
+        return this.startWith(seed).aggregate(accumulator, resultSelector, args*);
+    },
     forEach : function(callback, args*)
     {
         callback = global.Enumerable.createLambda(callback);

@@ -782,6 +782,76 @@ function testLastOrDefault
     equals(Enumerable.repeat(1,10).lastOrDefault(-1, "false"), -1);
 }
 
+// ======================================================== aggregate
+function testAggregate
+{
+    equals(
+        Enumerable.range(1,5).aggregate(function(a, x) { return a + x; }),
+        1+2+3+4+5
+    );
+    equals(
+        Enumerable.range(1,5)
+            .aggregate(
+                function(a, x) { return a + x; },
+                function(x) { return x * -10; }
+            ),
+        (1+2+3+4+5) * -10
+    );
+    throws(
+        "Exception",
+        "aggregate:Source contains no element",
+        function {
+            Enumerable.empty().aggregate(function(a, x) { throw new Exception(); });
+        }
+    );
+    equals(
+        Enumerable.range(10,1).aggregate(function(a, x) { throw new Exception(); }),
+        10
+    );
+    equals(
+        Enumerable.repeat(1,3).aggregate("_ + _2"),
+        1+1+1
+    );
+    equals(
+        Enumerable.range(1,3).aggregate("_ + _2 - _3", "_ * _3", 10, -100),
+        (1+2+3-10-10) * -100
+    );
+}
+
+// ======================================================== aggregateWithSeed
+function testAggregateWithSeed
+{
+    equals(
+        Enumerable.range(1,5).aggregateWithSeed(-10, function(a, x) { return a + x; }),
+        -10+1+2+3+4+5
+    );
+    equals(
+        Enumerable.range(1,5)
+            .aggregateWithSeed(
+                -10,
+                function(a, x) { return a + x; },
+                function(x) { return x * -10; }
+            ),
+        (-10+1+2+3+4+5) * -10
+    );
+    equals(
+        Enumerable.empty().aggregateWithSeed(-10, function(a, x) { throw new Exception(); }),
+        -10
+    );
+    equals(
+        Enumerable.range(10,1).aggregateWithSeed(-10, function(a, x) { return a+x; }),
+        -10 + 10
+    );
+    equals(
+        Enumerable.repeat(1,3).aggregateWithSeed(-10, "_ + _2"),
+        -10+1+1+1
+    );
+    equals(
+        Enumerable.range(1,3).aggregateWithSeed(-10, "_ + _2 - _3", "_ * _3", 10, -100),
+        (-10+1+2+3-10-10-10) * -100
+    );
+}
+
 // ======================================================== forEach
 function testForEach
 {
