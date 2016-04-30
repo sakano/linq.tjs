@@ -441,6 +441,10 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         }
         return true;
     },
+    contains : function(value, comparer = function(a, b) { return a === b; }, args*)
+    {
+        return this.any(comparer, value, args*);
+    },
     sequenceEqual : function(second, comparer = function(a, b) { return a === b; }, args*)
     {
         comparer = global.Enumerable.createLambda(comparer);

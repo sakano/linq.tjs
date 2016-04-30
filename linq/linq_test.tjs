@@ -1153,6 +1153,24 @@ function testAll
         true
     );
 }
+// ======================================================== contains
+function testContains
+{
+    equals(Enumerable.range(1, 3).contains(1), true);
+    equals(Enumerable.range(1, 3).contains("1"), false);
+    equals(Enumerable.range(1, 3).contains(3), true);
+    equals(Enumerable.range(1, 3).contains(0), false);
+    equals(Enumerable.range(1, 3).contains(-1), false);
+    equals(Enumerable.range(1, 3).contains(-1, function(x) { return x < 0 ? -x : x; }), true);
+    equals(Enumerable.range(1, 3).contains(-1, "_ < 0 ? -_ : _"), true);
+    equals(Enumerable.range(1, 3).contains(6, "_ % _2", 3), true);
+    equals(Enumerable.empty().contains(1), false);
+    equals(Enumerable.from([]).contains(void), false);
+    equals(Enumerable.from([1, void, 2]).contains(void), true);
+    equals(Enumerable.from([]).contains(null), false);
+    equals(Enumerable.from([null]).contains(null), true);
+}
+
 // ======================================================== sequenceEqual
 function testSequenceEqual
 {
