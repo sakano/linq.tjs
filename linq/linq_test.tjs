@@ -773,6 +773,398 @@ function testExcept
     );
 }
 
+// ======================================================== innerJoin
+function testInnerJoin
+{
+    equals(
+        Enumerable.range(1, 3)
+            .innerJoin(
+                Enumerable.range(0, 5),
+                function(a) { return a; },
+                function(b) { return b; },
+                function(a, b) { return @"${a}-${b}"; }
+            )
+            .toArray(),
+        ["1-1", "2-2", "3-3"]
+    );
+    equals(
+        Enumerable.range(0, 5)
+            .innerJoin(
+                ["a", "b", "ab", "cd", "ef"],
+                function(a) { return a; },
+                function(b) { return b.length; },
+                function(a, b) { return %[ length:a, str:b ]; }
+            )
+            .toArray(),
+        [
+            %[ length:1, str:"a" ],
+            %[ length:1, str:"b" ],
+            %[ length:2, str:"ab" ],
+            %[ length:2, str:"cd" ],
+            %[ length:2, str:"ef" ]
+        ]
+    );
+    equals(
+        Enumerable.empty()
+            .innerJoin(
+                ["a", "b", "ab", "cd", "ef"],
+                function(a) { return a; },
+                function(b) { return b.length; },
+                function(a, b) { return %[ length:a, str:b ]; }
+            )
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(1, 3)
+            .innerJoin(
+                Enumerable.empty(),
+                function(a) { return a; },
+                function(b) { return b; },
+                function(a, b) { return @"${a}-${b}"; }
+            )
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.empty()
+            .innerJoin(
+                Enumerable.empty(),
+                function(a) { return a; },
+                function(b) { return b; },
+                function(a, b) { return @"${a}-${b}"; }
+            )
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(0, 5)
+            .innerJoin(["a", "b", "ab", "cd", "ef"], "_", "_.length", "%[ length:_, str:_2 ]")
+            .toArray(),
+        [
+            %[ length:1, str:"a" ],
+            %[ length:1, str:"b" ],
+            %[ length:2, str:"ab" ],
+            %[ length:2, str:"cd" ],
+            %[ length:2, str:"ef" ]
+        ]
+    );
+    equals(
+        Enumerable.range(1, 5)
+            .innerJoin(["a", "b", "ab", "cd", "ef"], "_2", "_2", "%[ number:_, str:_2 ]")
+            .toArray(),
+        [
+            %[ number:1, str:"a" ],
+            %[ number:2, str:"b" ],
+            %[ number:3, str:"ab" ],
+            %[ number:4, str:"cd" ],
+            %[ number:5, str:"ef" ]
+        ]
+    );
+    equals(
+        Enumerable.range(1, 3)
+            .innerJoin(Enumerable.repeat(1, 2), "_3", "_3", "_3", -1)
+            .toArray(),
+        [-1, -1, -1, -1, -1, -1]
+    );
+}
+
+// ======================================================== outerJoin
+function testOuterJoin
+{
+    equals(
+        Enumerable.range(1, 3)
+            .outerJoin(
+                Enumerable.range(0, 5),
+                function(a) { return a; },
+                function(b) { return b; },
+                function(a, b) { return @"${a}-${b.toArray().join(',')}"; }
+            )
+            .toArray(),
+        ["1-1", "2-2", "3-3"]
+    );
+    equals(
+        Enumerable.range(0, 5)
+            .outerJoin(
+                ["a", "b", "ab", "cd", "ef"],
+                function(a) { return a; },
+                function(b) { return b.length; },
+                function(a, b) { return %[ length:a, str:b.toArray().join(',') ]; }
+            )
+            .toArray(),
+        [
+            %[ length:0, str:"" ],
+            %[ length:1, str:"a,b" ],
+            %[ length:2, str:"ab,cd,ef" ],
+            %[ length:3, str:"" ],
+            %[ length:4, str:"" ]
+        ]
+    );
+    equals(
+        Enumerable.empty()
+            .outerJoin(
+                ["a", "b", "ab", "cd", "ef"],
+                function(a) { return a; },
+                function(b) { return b.length; },
+                function(a, b) { return %[ length:a, str:b.toArray().join(',') ]; }
+            )
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(1, 3)
+            .outerJoin(
+                Enumerable.empty(),
+                function(a) { return a; },
+                function(b) { return b; },
+                function(a, b) { return @"${a}-${b.toArray().join(',')}"; }
+            )
+            .toArray(),
+        ["1-", "2-", "3-"]
+    );
+    equals(
+        Enumerable.empty()
+            .outerJoin(
+                Enumerable.empty(),
+                function(a) { return a; },
+                function(b) { return b; },
+                function(a, b) { return @"${a}-${b.toArray().join(',')}"; }
+            )
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(0, 5)
+            .outerJoin(
+                ["a", "b", "ab", "cd", "ef"],
+                "_",
+                "_.length", "%[ length:_, str:_2.toArray().join(',') ]"
+            )
+            .toArray(),
+        [
+            %[ length:0, str:"" ],
+            %[ length:1, str:"a,b" ],
+            %[ length:2, str:"ab,cd,ef" ],
+            %[ length:3, str:"" ],
+            %[ length:4, str:"" ]
+        ]
+    );
+    equals(
+        Enumerable.range(1, 5)
+            .outerJoin(
+                ["a", "b", "ab", "cd", "ef"],
+                "_2",
+                "_2",
+                "%[ number:_, str:_2.toArray().join(',') ]"
+            )
+            .toArray(),
+        [
+            %[ number:1, str:"a" ],
+            %[ number:2, str:"b" ],
+            %[ number:3, str:"ab" ],
+            %[ number:4, str:"cd" ],
+            %[ number:5, str:"ef" ]
+        ]
+    );
+    equals(
+        Enumerable.range(1, 3)
+            .outerJoin(Enumerable.repeat(1, 2), "_3", "_3", "_3", -1)
+            .toArray(),
+        [-1, -1, -1]
+    );
+}
+
+// ======================================================== groupJoin
+function testGroupJoin
+{
+    equals(
+        Enumerable.range(1, 3)
+            .groupJoin(
+                Enumerable.range(0, 5),
+                function(a) { return a; },
+                function(b) { return b; },
+                function(a, b) { return @"${a}-${b.toArray().join(',')}"; }
+            )
+            .toArray(),
+        ["1-1", "2-2", "3-3"]
+    );
+    equals(
+        Enumerable.range(0, 5)
+            .groupJoin(
+                ["a", "b", "ab", "cd", "ef"],
+                function(a) { return a; },
+                function(b) { return b.length; },
+                function(a, b) { return %[ length:a, str:b.toArray().join(',') ]; }
+            )
+            .toArray(),
+        [
+            %[ length:0, str:"" ],
+            %[ length:1, str:"a,b" ],
+            %[ length:2, str:"ab,cd,ef" ],
+            %[ length:3, str:"" ],
+            %[ length:4, str:"" ]
+        ]
+    );
+    equals(
+        Enumerable.empty()
+            .groupJoin(
+                ["a", "b", "ab", "cd", "ef"],
+                function(a) { return a; },
+                function(b) { return b.length; },
+                function(a, b) { return %[ length:a, str:b.toArray().join(',') ]; }
+            )
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(1, 3)
+            .groupJoin(
+                Enumerable.empty(),
+                function(a) { return a; },
+                function(b) { return b; },
+                function(a, b) { return @"${a}-${b.toArray().join(',')}"; }
+            )
+            .toArray(),
+        ["1-", "2-", "3-"]
+    );
+    equals(
+        Enumerable.empty()
+            .groupJoin(
+                Enumerable.empty(),
+                function(a) { return a; },
+                function(b) { return b; },
+                function(a, b) { return @"${a}-${b.toArray().join(',')}"; }
+            )
+            .toArray(),
+        []
+    );
+    equals(
+        Enumerable.range(0, 5)
+            .groupJoin(
+                ["a", "b", "ab", "cd", "ef"],
+                "_",
+                "_.length", "%[ length:_, str:_2.toArray().join(',') ]"
+            )
+            .toArray(),
+        [
+            %[ length:0, str:"" ],
+            %[ length:1, str:"a,b" ],
+            %[ length:2, str:"ab,cd,ef" ],
+            %[ length:3, str:"" ],
+            %[ length:4, str:"" ]
+        ]
+    );
+    equals(
+        Enumerable.range(1, 5)
+            .groupJoin(
+                ["a", "b", "ab", "cd", "ef"],
+                "_2",
+                "_2",
+                "%[ number:_, str:_2.toArray().join(',') ]"
+            )
+            .toArray(),
+        [
+            %[ number:1, str:"a" ],
+            %[ number:2, str:"b" ],
+            %[ number:3, str:"ab" ],
+            %[ number:4, str:"cd" ],
+            %[ number:5, str:"ef" ]
+        ]
+    );
+    equals(
+        Enumerable.range(1, 3)
+            .groupJoin(Enumerable.repeat(1, 2), "_3", "_3", "_3", -1)
+            .toArray(),
+        [-1, -1, -1]
+    );
+}
+
+// ======================================================== groupBy
+function testGroupBy
+{
+    var groups = Enumerable.from(["a", "b", "cd", "ef", "gh", "ijk"])
+        .groupBy(function(x) { return x.length; })
+        .toArray();
+    equals(groups.length, 3);
+    var keyCheck = 0;
+    for (var i = 0; i < groups.length; ++i) {
+        switch(groups[i].key) {
+        case "1":
+            keyCheck |= 0b001;
+            equals(groups[i].toArray(), ["a", "b"]);
+            break;
+        case "2":
+            keyCheck |= 0b010;
+            equals(groups[i].toArray(), ["cd", "ef", "gh"]);
+            break;
+        case "3":
+            keyCheck |= 0b100;
+            equals(groups[i].toArray(), ["ijk"]);
+            break;
+        default:
+            assert(false);
+        }
+    }
+    equals(keyCheck, 0b111);
+
+    var groups = Enumerable.from(["b", "a", "cd", "gh", "ef", "ijk"])
+        .groupBy("_3 + _.length", "_3 + _2 + ':' + _ ", null, "tag:")
+        .toArray();
+    equals(groups.length, 3);
+    var keyCheck = 0;
+    for (var i = 0; i < groups.length; ++i) {
+        switch(groups[i].key) {
+        case "tag:1":
+            keyCheck |= 0b001;
+            equals(groups[i].toArray(), ["tag:0:b", "tag:1:a"]);
+            break;
+        case "tag:2":
+            keyCheck |= 0b010;
+            equals(groups[i].toArray(), ["tag:2:cd", "tag:3:gh", "tag:4:ef"]);
+            break;
+        case "tag:3":
+            keyCheck |= 0b100;
+            equals(groups[i].toArray(), ["tag:5:ijk"]);
+            break;
+        default:
+            assert(false);
+        }
+    }
+    equals(keyCheck, 0b111);
+}
+
+function testGroupByWithResultSelector
+{
+    equals(Enumerable.from(["a", "b", "cd", "ef", "gh"])
+        .groupBy(
+            function(x) { return x.length; },
+            function(x) { return x; },
+            function(key, values) { return @"${key}:${values.toArray().join(',')}"; }
+        )
+        .toArray(),
+        ["1:a,b", "2:cd,ef,gh"]
+    );
+    equals(Enumerable.empty()
+        .groupBy(
+            function(x) { throw new Exception("never called"); },
+            function(x) { throw new Exception("never called"); },
+            function(x) { throw new Exception("never called"); },
+        )
+        .toArray(),
+        []
+    );
+    equals(Enumerable.from(["cd", "ef", "gh"])
+        .groupBy(
+            "_3 + _.length",
+            "_4 + _2 + ':' + _ ",
+            "_5 + _ + ',' + _2.toArray().join(',')",
+            "tag:", "elm:", "group:"
+        )
+        .toArray(),
+        ["group:tag:2,elm:0:cd,elm:1:ef,elm:2:gh"]
+    );
+}
+
 // ======================================================== startWith
 function testStartWith
 {

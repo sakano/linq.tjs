@@ -251,6 +251,126 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, second, keySelector, args
         );
     },
+    innerJoin : function(inner, outerKeySelector, innerKeySelector, resultSelector, args*)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, inner, outerKeySelector, innerKeySelector, resultSelector, args) {
+                this.outer = self;
+                this.inner = Enumerable.from(inner);
+                this.outerKeySelector = global.Enumerable.createLambda(outerKeySelector);
+                this.innerKeySelector = global.Enumerable.createLambda(innerKeySelector);
+                this.resultSelector = global.Enumerable.createLambda(resultSelector);
+                this.args = args;
+                this.initialized = false;
+            },
+            function {
+                if (!initialized) {
+                    initialized = true;
+                    this.innerLookup = inner.toLookup(innerKeySelector, void, args*);
+
+                    var query = outer.selectMany(
+                        function(outerElement, index) {
+                            var key = outerKeySelector(outerElement, index, args*);
+                            if (innerLookup[key] !== void) {
+                                return innerLookup[key];
+                            }
+                            return [];
+                        } incontextof this,
+                        resultSelector,
+                        args*
+                    );
+                    this.resultEnumerator = query.getEnumerator();
+                }
+
+                if (resultEnumerator.moveNext()) {
+                    this.result = this.resultEnumerator.current;
+                    return true;
+                }
+                return false;
+            },
+            this, inner, outerKeySelector, innerKeySelector, resultSelector, args
+        );
+    },
+    outerJoin : function(inner, outerKeySelector, innerKeySelector, resultSelector, args*)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, inner, outerKeySelector, innerKeySelector, resultSelector, args) {
+                this.outer = self.getEnumerator();
+                this.inner = Enumerable.from(inner);
+                this.outerKeySelector = global.Enumerable.createLambda(outerKeySelector);
+                this.innerKeySelector = global.Enumerable.createLambda(innerKeySelector);
+                this.resultSelector = global.Enumerable.createLambda(resultSelector);
+                this.args = args;
+                this.initialized = false;
+                this.index = -1;
+            },
+            function {
+                if (!initialized) {
+                    initialized = true;
+                    this.innerLookup = inner.toLookup(innerKeySelector, void, args*);
+                }
+                if (outer.moveNext()) {
+                    ++index;
+                    var key = outerKeySelector(outer.current, index, args*);
+                    var innerCollection = innerLookup[key] === void
+                        ? global.Enumerable.empty()
+                        : Enumerable.from(innerLookup[key]);
+                    this.result = resultSelector(outer.current, innerCollection, args*);
+                    return true;
+                }
+                return false;
+            },
+            this, inner, outerKeySelector, innerKeySelector, resultSelector, args
+        );
+    },
+    groupBy : function(
+        keySelector,
+        elementSelector = function(a) { return a; },
+        resultSelector = null,
+        args*)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, keySelector, elementSelector, resultSelector, args) {
+                this.self = self;
+                this.keySelector = global.Enumerable.createLambda(keySelector);
+                this.elementSelector = global.Enumerable.createLambda(elementSelector);
+                this.resultSelector = resultSelector !== null ? global.Enumerable.createLambda(resultSelector): null;
+                this.args = args;
+                this.initialized = false;
+            },
+            function {
+                if (!initialized) {
+                    initialized = true;
+                    var lookup = self.toLookup(keySelector, elementSelector, args*);
+                    this.resultEnumerator = Enumerable.from(lookup).getEnumerator();
+                }
+                if (resultEnumerator.moveNext()) {
+                    var group = global.Enumerable.createEnumerable(
+                        function(values) {
+                            this.enumerator = Enumerable.from(values).getEnumerator();
+                        },
+                        function {
+                            if (enumerator.moveNext()) {
+                                this.result = enumerator.result;
+                                return true;
+                            }
+                            return false;
+                        },
+                        resultEnumerator.current.value
+                    );
+                    group.key = resultEnumerator.current.key;
+                    if (resultSelector !== null) {
+                        this.result = resultSelector(group.key, group, args*);
+                    } else {
+                        this.result = group;
+                    }
+                    return true;
+                }
+                return false;
+            },
+            this, keySelector, elementSelector, resultSelector, args
+        );
+    },
     startWith : function(values*)
     {
         return global.Enumerable.from(values).concat(this);
@@ -715,6 +835,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
     }
 ], Scripts.pfStaticMember | Scripts.pfMemberEnsure);
 
+Enumerable.extensionMethods.groupJoin = Enumerable.extensionMethods.outerJoin;
 
 
 class Enumerable
