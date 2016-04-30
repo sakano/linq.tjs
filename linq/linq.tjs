@@ -190,7 +190,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         return global.Enumerable.createEnumerable(
             function(self, second) {
                 this.first = self.getEnumerator();
-                this.second = second.getEnumerator();
+                this.second = global.Enumerable.from(second).getEnumerator();
             },
             function {
                 if (first.moveNext()) {
@@ -215,7 +215,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         return global.Enumerable.createEnumerable(
             function(self, second, resultSelector, args) {
                 this.first = self.getEnumerator();
-                this.second = second.getEnumerator();
+                this.second = global.Enumerable.from(second).getEnumerator();
                 this.resultSelector = global.Enumerable.createLambda(resultSelector);
                 this.args = args;
                 this.index = -1;

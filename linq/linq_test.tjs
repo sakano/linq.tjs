@@ -580,13 +580,18 @@ function testConcat
             .toArray(),
         [1, 1, 1, 2, 2, 3]
     );
-
     equals(
         Enumerable.repeat(1, 0)
             .concat(Enumerable.repeat(2, 1))
             .concat(Enumerable.empty())
             .toArray(),
         [2]
+    );
+    equals(
+        Enumerable.repeat(1, 1)
+            .concat([2, 1, 3])
+            .toArray(),
+        [1, 2, 1, 3]
     );
 }
 
@@ -601,6 +606,15 @@ function testZip
             )
             .toArray(),
         [["key", 0], ["key", 1], ["key", 2]]
+    );
+    equals(
+        Enumerable.repeat("key", 3)
+            .zip(
+                [1, 10, 100],
+                function(a, b) { return [a, b]; }
+            )
+            .toArray(),
+        [["key", 1], ["key", 10], ["key", 100]]
     );
     equals(
         Enumerable.repeat("key", 2)
