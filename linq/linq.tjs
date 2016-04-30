@@ -123,38 +123,132 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, seed, accumulator, args
         );
     },
-    distinct : function(selector, args*)
+    distinct : function(keySelector = function(x) { return x; }, args*)
     {
         return global.Enumerable.createEnumerable(
-            function(self, selector, args*) {
+            function(self, keySelector, args) {
                 this.self = self.getEnumerator();
-                this.selector = global.Enumerable.createLambda(selector);
+                this.keySelector = global.Enumerable.createLambda(keySelector);
                 this.args = args;
-                this.bannedElements = %[];
+                this.seenElements = %[];
                 this.specialValues = [ void, "" ];
-                this.bannedSpecialValues = [];
+                this.seenSpecialValues = [];
             },
             function {
                 while (self.moveNext()) {
-                    var key = selector === void
-                        ? self.current
-                        : selector(self.current);
+                    var key = keySelector(self.current, args*);
                     var specialIndex = specialValues.find(key);
                     if (specialIndex >= 0) {
-                        if (bannedSpecialValues[specialIndex] === void) {
-                            bannedSpecialValues[specialIndex] = true;
+                        if (seenSpecialValues[specialIndex] === void) {
+                            seenSpecialValues[specialIndex] = true;
                             this.result = self.current;
                             return true;
                         }
-                    } else if (bannedElements[key] === void) {
-                        bannedElements[key] = true;
+                    } else if (seenElements[key] === void) {
+                        seenElements[key] = true;
                         this.result = self.current;
                         return true;
                     }
                 }
                 return false;
             },
-            this, selector, args
+            this, keySelector, args
+        );
+    },
+    union : function(second, keySelector, args*)
+    {
+        return this.concat(second).distinct(keySelector, args*);
+    },
+    intersect : function(second, keySelector = function(x) { return x; }, args*)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, second, keySelector, args) {
+                this.first = self.getEnumerator();
+                this.second = global.Enumerable.from(second).getEnumerator();
+                this.keySelector = global.Enumerable.createLambda(keySelector);
+                this.args = args;
+                this.potentialElements = %[];
+                this.specialValues = [ void, "" ];
+                this.potentialSpecialValues = [];
+                this.initialized = false;
+            },
+            function {
+                if (!initialized) {
+                    initialized = true;
+                    while (second.moveNext()) {
+                        var key = keySelector(second.current, args*);
+                        var specialIndex = specialValues.find(key);
+                        if (specialIndex >= 0) {
+                            potentialSpecialValues[specialIndex] = true;
+                        } else {
+                            potentialElements[key] = true;
+                        }
+                    }
+                }
+                while (first.moveNext()) {
+                    var key = keySelector(first.current, args*);
+                    var specialIndex = specialValues.find(key);
+                    if (specialIndex >= 0) {
+                        if (potentialSpecialValues[specialIndex]) {
+                            potentialSpecialValues[specialIndex] = false;
+                            this.result = first.current;
+                            return true;
+                        }
+                    } else if (potentialElements[key]) {
+                        potentialElements[key] = false;
+                        this.result = first.current;
+                        return true;
+                    }
+                }
+                return false;
+            },
+            this, second, keySelector, args
+        );
+    },
+    except : function(second, keySelector = function(x) { return x; }, args*)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, second, keySelector, args) {
+                this.first = self.getEnumerator();
+                this.second = global.Enumerable.from(second).getEnumerator();
+                this.keySelector = global.Enumerable.createLambda(keySelector);
+                this.args = args;
+                this.bannedElements = %[];
+                this.specialValues = [ void, "" ];
+                this.bannedSpecialValues = [];
+                this.initialized = false;
+            },
+            function {
+                if (!initialized) {
+                    initialized = true;
+                    while (second.moveNext()) {
+                        var key = keySelector(second.current, args*);
+                        var specialIndex = specialValues.find(key);
+                        if (specialIndex >= 0) {
+                            bannedSpecialValues[specialIndex] = true;
+                        } else {
+                            bannedElements[key] = true;
+                        }
+                    }
+                }
+                while (first.moveNext()) {
+                    var key = keySelector(first.current, args*);
+                    var specialIndex = specialValues.find(key);
+                    if (specialIndex >= 0) {
+                        if (bannedSpecialValues[specialIndex] === void) {
+                            bannedSpecialValues[specialIndex] = true;
+                            this.result = first.current;
+                            return true;
+                        }
+                    } else if (bannedElements[key] === void) {
+                        bannedElements[key] = true;
+                        this.result = first.current;
+                        return true;
+                    }
+                }
+                return false;
+            },
+            this, second, keySelector, args
         );
     },
     startWith : function(values*)
