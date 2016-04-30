@@ -119,6 +119,46 @@ function testToDictionary
     );
 }
 
+// ======================================================== toLookup
+function testToLooup
+{
+    equals(
+        Enumerable.range(1, 3)
+            .toLookup(function(x) { return x; }),
+        %[ "1"=>[1], "2"=>[2], "3"=>[3] ]
+    ) ;
+    equals(
+        Enumerable.empty()
+            .toLookup(function(x) { throw new Exception("never called");}),
+        %[]
+    );
+    equals(
+        Enumerable.repeat(2, 4)
+            .toLookup(
+                function(x, index) { return @"${x}*${index}"; },
+                function(x, index) { return x * index; }
+            ),
+        %[ "2*0"=>[0], "2*1"=>[2], "2*2"=>[4], "2*3"=>[6] ]
+    );
+    equals(
+        Enumerable.range(1, 3).toLookup("_"),
+        %[ "1"=>[1], "2"=>[2], "3"=>[3] ]
+    );
+    equals(
+        Enumerable.range(-1, 3, -1)
+            .toLookup("_2 * _3", "_ * _4", 10, 100),
+        %[ "0"=>[-100], "10"=>[-200], "20"=>[-300] ]
+    );
+    equals(
+        Enumerable.repeat(1, 2).toLookup("_"),
+        %[ "1"=>[1, 1] ]
+    );
+    equals(
+        Enumerable.range(0, 5).toLookup("_ % _3", "_", 3),
+        %[ "0"=>[0, 3], "1"=>[1, 4], "2"=>[2] ]
+    );
+}
+
 // ======================================================== Enumerable.empty
 function testEmpty
 {

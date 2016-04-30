@@ -666,6 +666,23 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         }
         return result;
     },
+    toLookup : function(keySelector, elementSelector = function(x) { return x; }, args*)
+    {
+        keySelector = global.Enumerable.createLambda(keySelector);
+        elementSelector = global.Enumerable.createLambda(elementSelector);
+
+        var result = %[];
+        var enumerator = getEnumerator();
+        for (var index = 0; enumerator.moveNext(); ++index) {
+            var current = enumerator.current;
+            var key = keySelector(current, index, args*);
+            if (result[key] === void) {
+                result[key] = [];
+            }
+            result[key].add(elementSelector(current, index, args*));
+        }
+        return result;
+    },
     trace : function(logger = global.Debug.message, args*)
     {
         return global.Enumerable.createEnumerable(
