@@ -96,12 +96,13 @@ function testToDictionary
         %[]
     );
     equals(
-        Enumerable.repeat(2, 4)
+        Enumerable.range(2, 4)
             .toDictionary(
-                function(x, index) { return @"${x}*${index}"; },
-                function(x, index) { return x * index; }
+                function(x, a, b) { return x + a; },
+                function(x, a, b) { return x * b; },
+                10, -1
             ),
-        %[ "2*0"=>0, "2*1"=>2, "2*2"=>4, "2*3"=>6 ]
+        %[ "12"=>-2, "13"=>-3, "14"=>-4, "15"=>-5 ]
     );
     equals(
         Enumerable.range(1, 3).toDictionary("_"),
@@ -109,8 +110,8 @@ function testToDictionary
     );
     equals(
         Enumerable.range(-1, 3, -1)
-            .toDictionary("_2 * _3", "_ * _4", 10, 100),
-        %[ "0"=>-100, "10"=>-200, "20"=>-300 ]
+            .toDictionary("_", "_ * 10"),
+        %[ "-1"=>-10, "-2"=>-20, "-3"=>-30 ]
     );
     throws(
         "Exception",
@@ -133,28 +134,24 @@ function testToLooup
         %[]
     );
     equals(
-        Enumerable.repeat(2, 4)
+        Enumerable.range(2, 4)
             .toLookup(
-                function(x, index) { return @"${x}*${index}"; },
-                function(x, index) { return x * index; }
+                function(x, a, b) { return x + a; },
+                function(x, a, b) { return x * b; },
+                10, -1
             ),
-        %[ "2*0"=>[0], "2*1"=>[2], "2*2"=>[4], "2*3"=>[6] ]
+        %[ "12"=>[-2], "13"=>[-3], "14"=>[-4], "15"=>[-5] ]
     );
     equals(
         Enumerable.range(1, 3).toLookup("_"),
         %[ "1"=>[1], "2"=>[2], "3"=>[3] ]
     );
     equals(
-        Enumerable.range(-1, 3, -1)
-            .toLookup("_2 * _3", "_ * _4", 10, 100),
-        %[ "0"=>[-100], "10"=>[-200], "20"=>[-300] ]
-    );
-    equals(
         Enumerable.repeat(1, 2).toLookup("_"),
         %[ "1"=>[1, 1] ]
     );
     equals(
-        Enumerable.range(0, 5).toLookup("_ % _3", "_", 3),
+        Enumerable.range(0, 5).toLookup("_ % _2", "_", 3),
         %[ "0"=>[0, 3], "1"=>[1, 4], "2"=>[2] ]
     );
 }
@@ -850,20 +847,8 @@ function testInnerJoin
         ]
     );
     equals(
-        Enumerable.range(1, 5)
-            .innerJoin(["a", "b", "ab", "cd", "ef"], "_2", "_2", "%[ number:_, str:_2 ]")
-            .toArray(),
-        [
-            %[ number:1, str:"a" ],
-            %[ number:2, str:"b" ],
-            %[ number:3, str:"ab" ],
-            %[ number:4, str:"cd" ],
-            %[ number:5, str:"ef" ]
-        ]
-    );
-    equals(
         Enumerable.range(1, 3)
-            .innerJoin(Enumerable.repeat(1, 2), "_3", "_3", "_3", -1)
+            .innerJoin(Enumerable.repeat(1, 2), "_2", "_2", "_3", -1)
             .toArray(),
         [-1, -1, -1, -1, -1, -1]
     );
@@ -951,24 +936,25 @@ function testOuterJoin
     );
     equals(
         Enumerable.range(1, 5)
-            .outerJoin(
+            .groupJoin(
                 ["a", "b", "ab", "cd", "ef"],
                 "_2",
                 "_2",
-                "%[ number:_, str:_2.toArray().join(',') ]"
+                "%[ number:_, str:_2.toArray().join(',') ]",
+                "tag"
             )
             .toArray(),
         [
-            %[ number:1, str:"a" ],
-            %[ number:2, str:"b" ],
-            %[ number:3, str:"ab" ],
-            %[ number:4, str:"cd" ],
-            %[ number:5, str:"ef" ]
+            %[ number:1, str:"a,b,ab,cd,ef" ],
+            %[ number:2, str:"a,b,ab,cd,ef" ],
+            %[ number:3, str:"a,b,ab,cd,ef" ],
+            %[ number:4, str:"a,b,ab,cd,ef" ],
+            %[ number:5, str:"a,b,ab,cd,ef" ]
         ]
     );
     equals(
         Enumerable.range(1, 3)
-            .outerJoin(Enumerable.repeat(1, 2), "_3", "_3", "_3", -1)
+            .groupJoin(Enumerable.repeat(1, 2), "_2", "_2", "_3", -1)
             .toArray(),
         [-1, -1, -1]
     );
@@ -1060,20 +1046,21 @@ function testGroupJoin
                 ["a", "b", "ab", "cd", "ef"],
                 "_2",
                 "_2",
-                "%[ number:_, str:_2.toArray().join(',') ]"
+                "%[ number:_, str:_2.toArray().join(',') ]",
+                "tag"
             )
             .toArray(),
         [
-            %[ number:1, str:"a" ],
-            %[ number:2, str:"b" ],
-            %[ number:3, str:"ab" ],
-            %[ number:4, str:"cd" ],
-            %[ number:5, str:"ef" ]
+            %[ number:1, str:"a,b,ab,cd,ef" ],
+            %[ number:2, str:"a,b,ab,cd,ef" ],
+            %[ number:3, str:"a,b,ab,cd,ef" ],
+            %[ number:4, str:"a,b,ab,cd,ef" ],
+            %[ number:5, str:"a,b,ab,cd,ef" ]
         ]
     );
     equals(
         Enumerable.range(1, 3)
-            .groupJoin(Enumerable.repeat(1, 2), "_3", "_3", "_3", -1)
+            .groupJoin(Enumerable.repeat(1, 2), "_2", "_2", "_3", -1)
             .toArray(),
         [-1, -1, -1]
     );
@@ -1108,7 +1095,7 @@ function testGroupBy
     equals(keyCheck, 0b111);
 
     var groups = Enumerable.from(["b", "a", "cd", "gh", "ef", "ijk"])
-        .groupBy("_3 + _.length", "_3 + _2 + ':' + _ ", null, "tag:")
+        .groupBy("_2 + _.length", "_2 + _ ", null, "tag:")
         .toArray();
     equals(groups.length, 3);
     var keyCheck = 0;
@@ -1116,15 +1103,15 @@ function testGroupBy
         switch(groups[i].key) {
         case "tag:1":
             keyCheck |= 0b001;
-            equals(groups[i].toArray(), ["tag:0:b", "tag:1:a"]);
+            equals(groups[i].toArray(), ["tag:b", "tag:a"]);
             break;
         case "tag:2":
             keyCheck |= 0b010;
-            equals(groups[i].toArray(), ["tag:2:cd", "tag:3:gh", "tag:4:ef"]);
+            equals(groups[i].toArray(), ["tag:cd", "tag:gh", "tag:ef"]);
             break;
         case "tag:3":
             keyCheck |= 0b100;
-            equals(groups[i].toArray(), ["tag:5:ijk"]);
+            equals(groups[i].toArray(), ["tag:ijk"]);
             break;
         default:
             assert(false);
@@ -1153,15 +1140,15 @@ function testGroupByWithResultSelector
         .toArray(),
         []
     );
-    equals(Enumerable.from(["cd", "ef", "gh"])
+    equals(Enumerable.from(["cd", "ef", "gh", "ijk"])
         .groupBy(
-            "_3 + _.length",
-            "_4 + _2 + ':' + _ ",
+            "_2 + _.length",
+            "_3 + _ ",
             "_5 + _ + ',' + _2.toArray().join(',')",
             "tag:", "elm:", "group:"
         )
         .toArray(),
-        ["group:tag:2,elm:0:cd,elm:1:ef,elm:2:gh"]
+        ["group:tag:2,elm:cd,elm:ef,elm:gh", "group:tag:3,elm:ijk"]
     );
 }
 
@@ -1312,18 +1299,9 @@ function testZip
     );
     equals(
         Enumerable.repeat("key", 3)
-            .zip(
-                Enumerable.range(3, 5),
-                function(a, b, index) { return [a, index, b]; }
-            )
+            .zip(Enumerable.range(10, 3), "[_, _2, _3]", -1)
             .toArray(),
-        [["key", 0, 3], ["key", 1, 4], ["key", 2, 5]]
-    );
-    equals(
-        Enumerable.repeat("key", 3)
-            .zip(Enumerable.range(10, 3), "[_, _2, _3, _4]", -1)
-            .toArray(),
-        [["key", 10, 0, -1], ["key", 11, 1, -1], ["key", 12, 2, -1]]
+        [["key", 10, -1], ["key", 11, -1], ["key", 12, -1]]
     );
 }
 // ======================================================== skip
@@ -1627,8 +1605,7 @@ function testFirst
         3
     );
     equals(Enumerable.range(1, 5).first("2 <= _ "), 2);
-    equals(Enumerable.range(1, 5).first("1 <= _2 "), 2);
-    equals(Enumerable.range(1, 5).first("_3 <= _2 ", 3), 4);
+    equals(Enumerable.range(1, 5).first("_2 <= _ ", 3), 3);
     throws(
         "Exception",
         "first:No element satisfies the condition",
@@ -1660,8 +1637,7 @@ function testFirstOrDefault
         -1
     );
     equals(Enumerable.range(1, 5).firstOrDefault(-1, "2 <= _ "), 2);
-    equals(Enumerable.range(1, 5).firstOrDefault(-1, "1 <= _2 "), 2);
-    equals(Enumerable.range(1, 5).firstOrDefault(-1, "_3 <= _2 ", 3), 4);
+    equals(Enumerable.range(1, 5).firstOrDefault(-1, "_ == _2 ", 3), 3);
     equals(Enumerable.repeat(1, 10).firstOrDefault(-1, "false"), -1);
 }
 
@@ -1674,8 +1650,7 @@ function testLast
         4
     );
     equals(Enumerable.range(1, 5).last("_ < 2"), 1);
-    equals(Enumerable.range(1, 5).last("_2 < 3"), 3);
-    equals(Enumerable.range(1, 5).last("_3 <= _2 ", 3), 5);
+    equals(Enumerable.range(1, 5).last("_2 <= _ ", 3), 5);
     throws(
         "Exception",
         "last:No element satisfies the condition",
@@ -1706,9 +1681,8 @@ function testLastOrDefault
         function { throw new Exception("never called"); }),
         -1
     );
-    equals(Enumerable.range(1, 5).lastOrDefault(-1, "_ <= 2"), 2);
-    equals(Enumerable.range(1, 5).lastOrDefault(-1, "1 <= _2 "), 5);
-    equals(Enumerable.range(1, 5).lastOrDefault(-1, "_ <= _3 ", 3), 3);
+    equals(Enumerable.range(1, 5).lastOrDefault(-1, "_ <= _2 ", 3), 3);
+    equals(Enumerable.range(1, 5).lastOrDefault(-1, "_2 <= _ ", 3), 5);
     equals(Enumerable.repeat(1, 10).lastOrDefault(-1, "false"), -1);
 }
 
@@ -1721,11 +1695,7 @@ function testSingle
         1
     );
     equals(Enumerable.range(0, 5, 2)
-        .single("_ == _2"),
-        0
-    );
-    equals(Enumerable.range(0, 5, 2)
-        .single("_ == _3", 8),
+        .single("_ == _2", 8),
         8
     );
     throws(
@@ -1760,10 +1730,9 @@ function testSingleOrDefault
         3
     );
     equals(Enumerable.range(3, 5)
-        .singleOrDefault(-1, function(x, index, arg) { return index == arg; }, 3),
-        6
+        .singleOrDefault(-1, function(x, arg) { return x == arg; }, 3),
+        3
     );
-    equals(Enumerable.range(-1,3).singleOrDefault(-1, "1 < _2"), 1);
     equals(Enumerable.range(1,5).singleOrDefault(-1, "false"), -1);
     throws(
         "Exception",
@@ -1855,8 +1824,7 @@ function testAverage
             Enumerable.empty().average(function { throw new Exception("never called"); });
         }
     );
-    equals(Enumerable.range(1, 2).average("_ * _2"), (real)(1*0 + 2*1)/2);
-    equals(Enumerable.range(1, 3).average("_ * _3", 5), (real)(1*5 + 2*5 + 3*5)/3);
+    equals(Enumerable.range(1, 3).average("_ * _2", 5), (real)(1*5 + 2*5 + 3*5)/3);
 }
 
 // ======================================================== max

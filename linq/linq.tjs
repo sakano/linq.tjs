@@ -269,8 +269,8 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                     this.innerLookup = inner.toLookup(innerKeySelector, void, args*);
 
                     var query = outer.selectMany(
-                        function(outerElement, index) {
-                            var key = outerKeySelector(outerElement, index, args*);
+                        function(outerElement) {
+                            var key = outerKeySelector(outerElement, args*);
                             if (innerLookup[key] !== void) {
                                 return innerLookup[key];
                             }
@@ -302,7 +302,6 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                 this.resultSelector = global.Enumerable.createLambda(resultSelector);
                 this.args = args;
                 this.initialized = false;
-                this.index = -1;
             },
             function {
                 if (!initialized) {
@@ -310,8 +309,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                     this.innerLookup = inner.toLookup(innerKeySelector, void, args*);
                 }
                 if (outer.moveNext()) {
-                    ++index;
-                    var key = outerKeySelector(outer.current, index, args*);
+                    var key = outerKeySelector(outer.current, args*);
                     var innerCollection = innerLookup[key] === void
                         ? global.Enumerable.empty()
                         : Enumerable.from(innerLookup[key]);
@@ -432,17 +430,13 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                 this.second = global.Enumerable.from(second).getEnumerator();
                 this.resultSelector = global.Enumerable.createLambda(resultSelector);
                 this.args = args;
-                this.index = -1;
             },
             function {
-                var firstExist = first.moveNext();
-                var secondExist = second.moveNext();
-                if (!firstExist || !secondExist) {
+                if (!first.moveNext() || !second.moveNext()) {
                     return false;
                 }
 
-                ++index;
-                this.result = resultSelector(first.current, second.current, index, args*);
+                this.result = resultSelector(first.current, second.current, args*);
                 return true;
             },
             this, second, resultSelector, args
@@ -474,7 +468,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                     skipped = true;
                     var index = 0;
                     while (self.moveNext()) {
-                        if (!predicate(self.current, index,  args*)) {
+                        if (!predicate(self.current, index, args*)) {
                             this.result = self.current;
                             return true;
                         }
@@ -571,19 +565,15 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
 
         var first = this.getEnumerator();
         var second = Enumerable.from(second).getEnumerator();
-        for (var index = 0; ; ++index) {
-            var firstExist = first.moveNext();
-            var secondExist = second.moveNext();
-            if (firstExist !== secondExist) {
+        while (first.moveNext()) {
+            if (!second.moveNext()) {
                 return false;
             }
-            if (!firstExist) {
-                return true;
-            }
-            if (!comparer(first.current, second.current, index, args*)) {
+            if (!comparer(first.current, second.current, args*)) {
                 return false;
             }
         }
+        return !second.moveNext();
     },
     elementAt : function(index)
     {
@@ -619,9 +609,8 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         predicate = global.Enumerable.createLambda(predicate);
 
         var enumerator = this.getEnumerator();
-        var index = -1;
         while (enumerator.moveNext()) {
-            if (predicate == void || predicate(enumerator.current, ++index, args*)) {
+            if (predicate == void || predicate(enumerator.current, args*)) {
                 return enumerator.current;
             }
         }
@@ -642,9 +631,8 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
 
         var enumerator = this.getEnumerator();
         var result = defaultValue;
-        var index = -1;
         while (enumerator.moveNext()) {
-            if (predicate === void || predicate(enumerator.current, ++index, args*)) {
+            if (predicate === void || predicate(enumerator.current, args*)) {
                 result = enumerator.current;
             }
         }
@@ -664,11 +652,10 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         predicate = global.Enumerable.createLambda(predicate);
 
         var enumerator = this.getEnumerator();
-        var index = -1;
         var result = defaultValue;
         var found = false;
         while (enumerator.moveNext()) {
-            if (predicate == void || predicate(enumerator.current, ++index, args*)) {
+            if (predicate == void || predicate(enumerator.current, args*)) {
                 if (found) {
                     throw new Exception("singleOrDefault:More than one element satisfies the condition");
                 }
@@ -709,7 +696,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             sum +=
                 selector === void
                 ? enumerator.current
-                : selector(enumerator.current, count, args*);
+                : selector(enumerator.current, args*);
             ++count;
         }
 
@@ -780,13 +767,13 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
 
         var result = %[];
         var enumerator = getEnumerator();
-        for (var index = 0; enumerator.moveNext(); ++index) {
+        while (enumerator.moveNext()) {
             var current = enumerator.current;
-            var key = keySelector(current, index, args*);
+            var key = keySelector(current, args*);
             if (result[key] !== void) {
                 throw new Exception("toDictionary:keySelector produces duplicate keys");
             }
-            result[key] = elementSelector(current, index, args*);
+            result[key] = elementSelector(current, args*);
         }
         return result;
     },
@@ -797,13 +784,13 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
 
         var result = %[];
         var enumerator = getEnumerator();
-        for (var index = 0; enumerator.moveNext(); ++index) {
+        while (enumerator.moveNext()) {
             var current = enumerator.current;
-            var key = keySelector(current, index, args*);
+            var key = keySelector(current, args*);
             if (result[key] === void) {
                 result[key] = [];
             }
-            result[key].add(elementSelector(current, index, args*));
+            result[key].add(elementSelector(current, args*));
         }
         return result;
     },
