@@ -113,3 +113,23 @@ Scripts.propSet(Enumerable, "returns", function(value)
 {
     return global.Enumerable.repeat(value, 1);
 }, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+// ======================================================== Enumerable.returns
+Scripts.propSet(Enumerable, "matches", function(target, regex)
+{
+    return global.Enumerable.createEnumerable(
+        function(target, regex) {
+            this.target = target;
+            this.regex = regex;
+        },
+        function {
+            if (!regex.test(target)) {
+                return false;
+            }
+            this.result = regex.matches;
+            return true;
+        },
+        target, regex
+    );
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);

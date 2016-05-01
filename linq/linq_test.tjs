@@ -268,6 +268,28 @@ function testReturns
     equals(Enumerable.returns(%[]).toArray(), [%[]]);
 }
 
+// ======================================================== Enumerable.matches
+function testMatches
+{
+    equals(Enumerable.matches("abcd", /[a-z]/g).toArray(),
+        [
+            ["a"],
+            ["b"],
+            ["c"],
+            ["d"]
+        ]
+    );
+    equals(Enumerable.matches("a2bcd3e4", /([a-z])([0-9])/g).toArray(),
+        [
+            ["a2", "a", "2"],
+            ["d3", "d", "3"],
+            ["e4", "e", "4"]
+        ]
+    );
+    equals(Enumerable.matches("", /[a-z]/g).toArray(), []);
+    equals(Enumerable.matches("ABC", /[a-z]/g).toArray(), []);
+}
+
 // ======================================================== where
 function testWhere
 {
