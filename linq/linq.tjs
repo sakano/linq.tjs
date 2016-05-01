@@ -585,6 +585,27 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         }
         return counter;
     },
+    indexOf : function(target, args*)
+    {
+        var enumerator = this.getEnumerator();
+        var index = -1;
+        if (target instanceof "Function") {
+            while (enumerator.moveNext()) {
+                index++;
+                if (target(enumerator.current, args*)) {
+                    return index;
+                }
+            }
+        } else {
+            while (enumerator.moveNext()) {
+                index++;
+                if (target === enumerator.current) {
+                    return index;
+                }
+            }
+        }
+        return -1;
+    },
     isEmpty : function()
     {
         return !any();

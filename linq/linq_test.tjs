@@ -1690,6 +1690,19 @@ function testCount
     equals(Enumerable.range(0, 100).count("_ < _2", 30), 30);
 }
 
+// ======================================================== indexOf
+function testIndexOf
+{
+    equals(Enumerable.range(1, 3).indexOf(1), 0);
+    equals(Enumerable.range(1, 3).indexOf(3), 2);
+    equals(Enumerable.range(1, 3).indexOf(3.0), -1);
+    equals(Enumerable.empty().indexOf(0), -1);
+    equals(Enumerable.range(1, 3).indexOf(function(x) { return x == 2; }), 1);
+    equals(Enumerable.range(1, 3).indexOf(function(x) { return x == 0; }), -1);
+    equals(Enumerable.range(1, 3).indexOf(function(x, v) { return x == v; }, 1), 0);
+    equals(Enumerable.range(1, 3).indexOf(function(x, v) { return x == v; }, 5), -1);
+}
+
 // ======================================================== isEmpty
 function testIsEmpty
 {
