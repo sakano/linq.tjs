@@ -133,3 +133,23 @@ Scripts.propSet(Enumerable, "matches", function(target, regex)
         target, regex
     );
 }, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+// ======================================================== Enumerable.returns
+Scripts.propSet(Enumerable, "random", function(seed, count)
+{
+    return global.Enumerable.generate(
+        function(index, generator) { return generator.random(); },
+        count, new global.Math.RandomGenerator(seed)
+    );
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+
+// ======================================================== Enumerable.returns
+Scripts.propSet(Enumerable, "randomInt", function(min, max, seed, count)
+{
+    return global.Enumerable.random(seed, count)
+        .select(function(x, index, min, max) {
+            return (int)(x * (max - min + 1)) + min;
+        }, min, max);
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);

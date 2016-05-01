@@ -299,6 +299,70 @@ function testMatches
     equals(Enumerable.matches("ABC", /[a-z]/g).toArray(), []);
 }
 
+// ======================================================== Enumerable.random
+function testRandom
+{
+    var enumerator = Enumerable.random().getEnumerator();
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        assert(typeof enumerator.current === "Real");
+        assert(0 <= enumerator.current && enumerator.current < 1);
+    }
+
+    var generator = new global.Math.RandomGenerator();
+
+    var enumerator = Enumerable.random(0).getEnumerator();
+    generator.randomize(0);
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        equals(enumerator.current, generator.random());
+        assert(typeof enumerator.current === "Real");
+        assert(0 <= enumerator.current && enumerator.current < 1);
+    }
+
+    var enumerator = Enumerable.random(68386357, 1000).getEnumerator();
+    generator.randomize(68386357);
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        equals(enumerator.current, generator.random());
+        assert(typeof enumerator.current === "Real");
+        assert(0 <= enumerator.current && enumerator.current < 1);
+    }
+    equals(enumerator.moveNext(), false);
+}
+
+// ======================================================== Enumerable.randomInt
+function testRandomInt
+{
+    var enumerator = Enumerable.randomInt(0, 10).getEnumerator();
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        assert(typeof enumerator.current === "Integer");
+        assert(0 <= enumerator.current && enumerator.current <= 10);
+    }
+
+    var generator = new global.Math.RandomGenerator();
+
+    var enumerator = Enumerable.randomInt(-10, 10, 0).getEnumerator();
+    generator.randomize(0);
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        equals(enumerator.current, (int)(generator.random() * 21) - 10);
+        assert(typeof enumerator.current === "Integer");
+        assert(-10 <= enumerator.current && enumerator.current <= 10);
+    }
+
+    var enumerator = Enumerable.randomInt(5, 10, 1668124, 1000).getEnumerator();
+    generator.randomize(1668124);
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        equals(enumerator.current, (int)(generator.random() * 6) + 5);
+        assert(typeof enumerator.current === "Integer");
+        assert(5 <= enumerator.current && enumerator.current <= 10);
+    }
+    equals(enumerator.moveNext(), false);
+}
+
 // ======================================================== where
 function testWhere
 {
