@@ -523,6 +523,31 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         comparer = global.OrderedEnumerable.reverseComparer incontextof %[ comparer:comparer ];
         return this.orderBy(keySelector, comparer);
     },
+    reverse : function
+    {
+        return global.Enumerable.createEnumerable(
+            function(self) {
+                this.self = self.getEnumerator();
+                this.initialized = false;
+            },
+            function {
+                if (!initialized) {
+                    initialized = true;
+                    this.stack = [];
+                    while (self.moveNext()) {
+                        stack.push(self.current);
+                    }
+                }
+
+                if (stack.count === 0) {
+                    return false;
+                }
+                this.result = stack.pop();
+                return true;
+            },
+            this
+        );
+    },
     count : function(predicate = function { return true; }, args*)
     {
         predicate = global.Enumerable.createLambda(predicate);

@@ -1638,6 +1638,15 @@ function testThenByDescending
     );
 }
 
+// ======================================================== reverse
+function testReverse
+{
+    equals(Enumerable.range(1, 5).reverse().trace().toArray(), [5, 4, 3, 2, 1]);
+    equals(Enumerable.repeat(1, 3).reverse().toArray(), [1, 1, 1]);
+    equals(Enumerable.from("abcd").reverse().aggregate("_+_2"), "dcba");
+    equals(Enumerable.empty().reverse().toArray(), []);
+}
+
 // ======================================================== count
 function testCount
 {
