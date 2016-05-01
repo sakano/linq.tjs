@@ -1461,6 +1461,183 @@ function testTakeWhile
     );
 }
 
+// ======================================================== orderBy
+function testOrderBy
+{
+    equals(
+        Enumerable.range(2, 5, -1)
+            .orderBy(function(x) { return x; })
+            .toArray(),
+         [-2, -1, 0, 1, 2]
+    );
+    equals(
+        Enumerable.from(["ab", "c", "def", "gh", "ijk", "l", "", "mn", "o"])
+            .orderBy(function(x) { return x.length; })
+            .toArray(),
+         ["", "c", "l", "o", "ab", "gh", "mn", "def", "ijk"]
+    );
+    equals(
+        Enumerable.empty()
+            .orderBy(function(x) { throw new Exception("never called"); })
+            .toArray(),
+         []
+    );
+    equals(
+        Enumerable.from(["ab", "c", "def", "gh", "ijk", "l", "", "mn", "o"])
+            .orderBy("_", "_.length < _2.length ? -1 : _.length == _2.length ? 0 : 1")
+            .toArray(),
+         ["", "c", "l", "o", "ab", "gh", "mn", "def", "ijk"]
+    );
+}
+
+// ======================================================== orderByDescending
+function testOrderByDescending
+{
+    equals(
+        Enumerable.range(-2, 5, 1)
+            .orderByDescending(function(x) { return x; })
+            .toArray(),
+         [2, 1, 0, -1, -2]
+    );
+    equals(
+        Enumerable.from(["ab", "c", "def", "gh", "ijk", "l", "", "mn", "o"])
+            .orderByDescending(function(x) { return x.length; })
+            .trace()
+            .toArray(),
+         ["def", "ijk", "ab", "gh", "mn", "c", "l", "o", ""]
+    );
+    equals(
+        Enumerable.empty()
+            .orderBy(function(x) { throw new Exception("never called"); })
+            .toArray(),
+         []
+    );
+    equals(
+        Enumerable.from(["ab", "c", "def", "gh", "ijk", "l", "", "mn", "o"])
+            .orderByDescending("_", "_.length < _2.length ? -1 : _.length == _2.length ? 0 : 1")
+            .toArray(),
+        ["def", "ijk", "ab", "gh", "mn", "c", "l", "o", ""]
+    );
+}
+
+// ======================================================== thenBy
+function testThenBy
+{
+    var obj = [
+        %[ id:0, key:"b", value:2, ],
+        %[ id:1, key:"a", value:0, ],
+        %[ id:2, key:"c", value:-1, ],
+        %[ id:3, key:"b", value:0, ],
+        %[ id:4, key:"a", value:-1 ],
+        %[ id:6, key:"b", value:1 ],
+        %[ id:5, key:"b", value:1 ]
+    ];
+    equals(
+        Enumerable.from(obj)
+            .orderBy(function(x) { return x.key; })
+            .thenBy(function(x) { return x.value; })
+            .thenBy(function(x) { return x.id; })
+            .toArray(),
+         [
+            %[ id:4, key:"a", value:-1 ],
+            %[ id:1, key:"a", value:0, ],
+            %[ id:3, key:"b", value:0, ],
+            %[ id:5, key:"b", value:1 ],
+            %[ id:6, key:"b", value:1 ],
+            %[ id:0, key:"b", value:2, ],
+            %[ id:2, key:"c", value:-1, ]
+         ]
+    );
+    equals(
+        Enumerable.empty()
+            .orderBy(function(x) { throw new Exception("never called"); })
+            .thenBy(function(x) { throw new Exception("never called"); })
+            .toArray(),
+         []
+    );
+    var obj = [
+        %[ key:"b", value:2 ],
+        %[ key:"a", value:0 ],
+        %[ key:"c", value:-1 ],
+        %[ key:"b", value:0 ],
+        %[ key:"a", value:-1 ],
+        %[ key:"b", value:1 ]
+    ];
+    equals(
+        Enumerable.from(obj)
+            .orderBy(function(x) { return x.key; })
+            .thenBy("_", "_.value < _2.value ? -1 : _.value == _2.value ? 0 : 1")
+            .toArray(),
+         [
+            %[ key:"a", value:-1 ],
+            %[ key:"a", value:0 ],
+            %[ key:"b", value:0 ],
+            %[ key:"b", value:1 ],
+            %[ key:"b", value:2 ],
+            %[ key:"c", value:-1 ]
+         ]
+    );
+}
+
+// ======================================================== thenByDescending
+function testThenByDescending
+{
+    var obj = [
+        %[ id:0, key:"b", value:2, ],
+        %[ id:1, key:"a", value:-1, ],
+        %[ id:2, key:"c", value:-1, ],
+        %[ id:3, key:"b", value:0, ],
+        %[ id:4, key:"a", value:0 ],
+        %[ id:5, key:"b", value:1 ],
+        %[ id:6, key:"b", value:1 ]
+    ];
+    equals(
+        Enumerable.from(obj)
+            .orderBy(function(x) { return x.key; })
+            .thenByDescending(function(x) { return x.value; })
+            .thenByDescending(function(x) { return x.id; })
+            .toArray(),
+         [
+            %[ id:4, key:"a", value:0, ],
+            %[ id:1, key:"a", value:-1 ],
+            %[ id:0, key:"b", value:2, ],
+            %[ id:6, key:"b", value:1 ],
+            %[ id:5, key:"b", value:1 ],
+            %[ id:3, key:"b", value:0, ],
+            %[ id:2, key:"c", value:-1, ]
+         ]
+    );
+    equals(
+        Enumerable.empty()
+            .orderBy(function(x) { throw new Exception("never called"); })
+            .thenByDescending(function(x) { throw new Exception("never called"); })
+            .toArray(),
+         []
+    );
+    var obj = [
+        %[ key:"b", value:2 ],
+        %[ key:"a", value:0 ],
+        %[ key:"c", value:-1 ],
+        %[ key:"b", value:0 ],
+        %[ key:"a", value:-1 ],
+        %[ key:"b", value:1 ]
+    ];
+    equals(
+        Enumerable.from(obj)
+            .orderBy(function(x) { return x.key; })
+            .thenByDescending("_", "_.value < _2.value ? -1 : _.value == _2.value ? 0 : 1")
+            .toArray(),
+         [
+            %[ key:"a", value:0 ],
+            %[ key:"a", value:-1 ],
+            %[ key:"b", value:2 ],
+            %[ key:"b", value:1 ],
+            %[ key:"b", value:0 ],
+            %[ key:"c", value:-1 ]
+         ]
+    );
+}
+
 // ======================================================== count
 function testCount
 {

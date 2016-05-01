@@ -1,0 +1,127 @@
+class OrderedEnumerable
+{
+    var source;
+    var currentKeySelector;
+    var currentComparer;
+
+    function OrderedEnumerable(source, keySelector, comparer)
+    {
+        this.source = source;
+        this.currentKeySelector = keySelector;
+        this.currentComparer = comparer;
+    }
+
+    function getEnumerator()
+    {
+        return new global.OrderedEnumerator(source, currentKeySelector, currentComparer);
+    }
+
+    function thenBy(keySelector, comparer)
+    {
+        return thenByImpl(keySelector, comparer, false);
+    }
+
+    function thenByDescending(keySelector, comparer)
+    {
+        return thenByImpl(keySelector, comparer, true);
+    }
+
+    function thenByImpl(
+        keySelector,
+        comparer = function(a, b) { return a < b ? -1 : a == b ? 0 : 1; },
+        descending = false
+    )
+    {
+        keySelector = global.Enumerable.createLambda(keySelector);
+        comparer = global.Enumerable.createLambda(comparer);
+
+        if (descending) {
+            comparer = reverseComparer incontextof %[ comparer:comparer ];
+        }
+        return new global.OrderedEnumerable(
+            source,
+            compositeKeySelector incontextof %[
+                primarySelector   : currentKeySelector,
+                secondarySelector : keySelector
+            ],
+            compositeKeyComparer incontextof %[
+                primaryComparer   : currentComparer,
+                secondaryComparer : comparer
+            ]
+        );
+    }
+
+    function reverseComparer(a, b)
+    {
+        return comparer(b, a);
+    }
+
+    function compositeKeySelector(element)
+    {
+        return %[
+            primary : primarySelector(element),
+            secondary : secondarySelector(element)
+        ];
+    }
+
+    function compositeKeyComparer(a, b)
+    {
+        var primaryResult = primaryComparer(a.primary, b.primary);
+        if (primaryResult != 0) {
+            return primaryResult;
+        }
+        return secondaryComparer(a.secondary, b.secondary);
+    }
+}
+Enumerable.extendTo(OrderedEnumerable);
+
+
+class OrderedEnumerator
+{
+    var source;
+    var keySelector;
+    var comparer;
+
+    var initialized = false;
+    var elements = [];
+    var elementIndex = -1;
+
+    function OrderedEnumerator(source, keySelector, comparer)
+    {
+        this.source = source;
+        this.keySelector = keySelector;
+        this.comparer = comparer;
+    }
+
+    function moveNext
+    {
+        if (!initialized) {
+            initialized = true;
+
+            var enumerator = source.getEnumerator();
+            while (enumerator.moveNext()) {
+                var value = enumerator.current;
+                elements.add(%[
+                    key : keySelector(value),
+                    value : value
+                ]);
+            }
+
+            elements.sort(
+                function(a, b) { return comparer(a.key, b.key) < 0; } incontextof this,
+                true
+            );
+        }
+
+        ++elementIndex;
+        if (elementIndex < elements.count) {
+            return true;
+        }
+        return false;
+    }
+
+    property current
+    {
+        getter { return elements[elementIndex].value; }
+    }
+}

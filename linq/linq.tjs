@@ -511,6 +511,18 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, predicate, args
         );
     },
+    orderBy : function(keySelector, comparer = function(a, b) { return a < b ? -1 : a == b ? 0 : 1; })
+    {
+        keySelector = global.Enumerable.createLambda(keySelector);
+        comparer = global.Enumerable.createLambda(comparer);
+        return new global.OrderedEnumerable(this, keySelector, comparer);
+    },
+    orderByDescending : function(keySelector, comparer = function(a, b) { return a < b ? -1 : a == b ? 0 : 1; })
+    {
+        comparer = global.Enumerable.createLambda(comparer);
+        comparer = global.OrderedEnumerable.reverseComparer incontextof %[ comparer:comparer ];
+        return this.orderBy(keySelector, comparer);
+    },
     count : function(predicate = function { return true; }, args*)
     {
         predicate = global.Enumerable.createLambda(predicate);
@@ -831,3 +843,4 @@ class Enumerable
 
 Scripts.execStorage("linq_utility.tjs");
 Scripts.execStorage("linq_generate.tjs");
+Scripts.execStorage("linq_order.tjs");
