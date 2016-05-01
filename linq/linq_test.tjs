@@ -82,6 +82,15 @@ function testToArray
     equals(Enumerable.from(%[ key:123 ]).toArray(), [ %[ key:"key", value:123 ] ]);
 }
 
+// ======================================================== toArray
+function testToString
+{
+    equals(Enumerable.from([1, 2, 3]).toString(), "123");
+    equals(Enumerable.from([1, 2, 3]).toString(","), "1,2,3");
+    equals(Enumerable.from([1, 2, 3]).toString(", "), "1, 2, 3");
+    equals(Enumerable.from("abc").toString(""), "abc");
+}
+
 // ======================================================== toDictionary
 function testToDictionary
 {

@@ -842,6 +842,10 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         }
         return result;
     },
+    toString : function(delimiter = "")
+    {
+        return this.toArray().join(delimiter);
+    },
     toDictionary : function(keySelector, elementSelector = function(x) { return x; }, args*)
     {
         keySelector = global.Enumerable.createLambda(keySelector);
