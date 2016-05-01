@@ -369,6 +369,30 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, keySelector, elementSelector, resultSelector, args
         );
     },
+    buffer : function(count)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, count) {
+                this.self = self.getEnumerator();
+                this.count = count;
+                this.empty = true;
+            },
+            function {
+                var array = [];
+                for (var i = 0; i < count; ++i) {
+                    if (!self.moveNext()) break;
+                    array.add(self.current);
+                }
+                if (array.count === 0) {
+                    return false;
+                }
+                this.result = Enumerable.from(array);
+                return true;
+            },
+            this, count
+        );
+
+    },
     startWith : function(values*)
     {
         return global.Enumerable.from(values).concat(this);

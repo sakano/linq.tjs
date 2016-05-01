@@ -1152,6 +1152,37 @@ function testGroupByWithResultSelector
     );
 }
 
+// ======================================================== buffer
+function testBuffer
+{
+    var enumerator = Enumerable.range(1, 10).buffer(3).getEnumerator();
+    equals(enumerator.moveNext(), true);
+    equals(enumerator.current.toArray(), [1, 2, 3]);
+    equals(enumerator.moveNext(), true);
+    equals(enumerator.current.toArray(), [4, 5, 6]);
+    equals(enumerator.moveNext(), true);
+    equals(enumerator.current.toArray(), [7, 8, 9]);
+    equals(enumerator.moveNext(), true);
+    equals(enumerator.current.toArray(), [10]);
+    equals(enumerator.moveNext(), false);
+
+    var enumerator = Enumerable.empty().buffer(3).getEnumerator();
+    equals(enumerator.moveNext(), false);
+
+    var enumerator = Enumerable.from("abcde").buffer(1).getEnumerator();
+    equals(enumerator.moveNext(), true);
+    equals(enumerator.current.toArray(), ["a"]);
+    equals(enumerator.moveNext(), true);
+    equals(enumerator.current.toArray(), ["b"]);
+    equals(enumerator.moveNext(), true);
+    equals(enumerator.current.toArray(), ["c"]);
+    equals(enumerator.moveNext(), true);
+    equals(enumerator.current.toArray(), ["d"]);
+    equals(enumerator.moveNext(), true);
+    equals(enumerator.current.toArray(), ["e"]);
+    equals(enumerator.moveNext(), false);
+}
+
 // ======================================================== startWith
 function testStartWith
 {
