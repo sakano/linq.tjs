@@ -1,7 +1,7 @@
 // ======================================================== Enumerable.from
-Scripts.propSet(Enumerable, "from", function(source)
+Scripts.propSet(Enumerable, "from", function(source, checkEnumerable = true)
 {
-    if (global.Enumerable.isEnumerable(source)) {
+    if (checkEnumerable && global.Enumerable.isEnumerable(source)) {
         return source;
     }
 

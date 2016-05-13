@@ -66,6 +66,13 @@ function testFromEnumerable
     ];
     equals(Enumerable.from(enumerable), enumerable);
 
+    var enumerable = Enumerable.from(enumerable, false);
+    var enumerator = enumerable.getEnumerator();
+    equals(enumerator.moveNext(), true);
+    equals(enumerator.current.key, "getEnumerator");
+    assert(enumerator.current.value instanceof "Function");
+    equals(enumerator.moveNext(), false);
+
     equals(Enumerable.from(function{}), null);
 }
 

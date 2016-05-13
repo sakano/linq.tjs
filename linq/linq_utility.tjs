@@ -5,8 +5,25 @@ Scripts.propSet(Enumerable, "extendTo", function(target)
     var keys = global.Scripts.getObjectKeys(methods);
     for (var i = 0; i < keys.count; ++i) {
         var key = keys[i];
-        if (typeof target[key] === "undefined") {
+        var alreadyExist = true;
+        try {
+            alreadyExist = (typeof target[key] !== "undefined");
+        } catch {
+            // Array.count
+        }
+        if (!alreadyExist) {
             target[key] = methods[key];
+        } else if (typeof target[key + "ByLinq" === "undefined"]) {
+            target[key + "ByLinq"] = methods[key];
+        }
+    }
+
+    if (target === global.Array) {
+        if (typeof target.getEnumerator === "undefined") {
+            target.getEnumerator = function {
+                var e = global.Enumerable.from(this, false).getEnumerator();
+                return e;
+            };
         }
     }
 }, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
