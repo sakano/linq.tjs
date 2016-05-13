@@ -8,7 +8,7 @@ Put following files into your project folder.
 * linq_generate.tjs
 * linq_order.tjs
 * linq_utility.tjs
-* ScriptsEx.dll
+* [scriptsEx.dll](https://sv.kikyou.info/svn/kirikiri2/trunk/kirikiri2/bin/win32/plugin/)
 
 Then load linq.tjs.
 ```
