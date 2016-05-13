@@ -8,6 +8,7 @@ Put following files into your project folder.
 * linq_generate.tjs
 * linq_order.tjs
 * linq_utility.tjs
+* ScriptsEx.dll
 
 Then load linq.tjs.
 ```
