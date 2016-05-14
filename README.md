@@ -2,21 +2,13 @@
 
 LINQ for TJS
 
-## Installation
-Put following files into your project folder.
-* linq.tjs
-* linq_generate.tjs
-* linq_order.tjs
-* linq_utility.tjs
-* [scriptsEx.dll](https://sv.kikyou.info/svn/kirikiri2/trunk/kirikiri2/bin/win32/plugin/)
-
-Then load linq.tjs.
-```
-Scripts.execStorage("linq.tjs");
-```
+## Documentation
+* [Installation](https://github.com/sakano/linq.tjs/wiki/Installation)
+* [Query Functions](https://github.com/sakano/linq.tjs/wiki/Query-Functions)
+* [Static Functions](https://github.com/sakano/linq.tjs/wiki/Static-Functions)
 
 ## Example
-```
+```javascript
 var data = [
     %[ name : "United States",  GDP:17348072 ],
     %[ name : "China",          GDP:10430590 ],
@@ -41,6 +33,7 @@ Enumerable.from(data)
 //   name: Germany
 
 // string can be used as function expression
+// '_' means the first argument
 Enumerable.from(data)
     .where("_.GDP > 3000000")
     .select("_.name")
