@@ -1197,7 +1197,7 @@ function testGroupBy
     equals(keyCheck, 0b111);
 
     var groups = Enumerable.from(["b", "a", "cd", "gh", "ef", "ijk"])
-        .groupBy("_2 + _.length", "_2 + _ ", null, "tag:")
+        .groupBy("_2 + _.length", "_2 + _ ", void, "tag:")
         .toArray();
     equals(groups.length, 3);
     var keyCheck = 0;

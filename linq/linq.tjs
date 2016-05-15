@@ -323,8 +323,8 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
     },
     groupBy : function(
         keySelector,
-        elementSelector = function(a) { return a; },
-        resultSelector = null,
+        elementSelector = function(x) { return x; },
+        resultSelector = function(key, group) { return group; },
         args*)
     {
         return global.Enumerable.createEnumerable(
@@ -332,7 +332,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                 this.self = self;
                 this.keySelector = global.Enumerable.createLambda(keySelector);
                 this.elementSelector = global.Enumerable.createLambda(elementSelector);
-                this.resultSelector = resultSelector !== null ? global.Enumerable.createLambda(resultSelector): null;
+                this.resultSelector = global.Enumerable.createLambda(resultSelector);
                 this.args = args;
                 this.initialized = false;
             },
@@ -357,11 +357,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                         resultEnumerator.current.value
                     );
                     group.key = resultEnumerator.current.key;
-                    if (resultSelector !== null) {
-                        this.result = resultSelector(group.key, group, args*);
-                    } else {
-                        this.result = group;
-                    }
+                    this.result = resultSelector(group.key, group, args*);
                     return true;
                 }
                 return false;
