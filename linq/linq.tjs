@@ -365,19 +365,26 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, keySelector, elementSelector, resultSelector, args
         );
     },
-    buffer : function(count)
+    buffer : function(count, skip)
     {
         return global.Enumerable.createEnumerable(
-            function(self, count) {
+            function(self, count, skip) {
                 this.self = self.getEnumerator();
                 this.count = count;
-                this.empty = true;
+                this.skip = skip !== void ? skip : count;
+                this.buffer = [];
             },
             function {
                 var array = [];
-                for (var i = 0; i < count; ++i) {
-                    if (!self.moveNext()) break;
+                if (buffer.count > 0) {
+                    array <-> buffer;
+                }
+                for (var i = array.count; i < count; ++i) {
+                    if (!self.moveNext()) { break; }
                     array.add(self.current);
+                    if (skip <= i) {
+                        buffer.add(self.current);
+                    }
                 }
                 if (array.count === 0) {
                     return false;
@@ -385,9 +392,8 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
                 this.result = Enumerable.from(array);
                 return true;
             },
-            this, count
+            this, count, skip
         );
-
     },
     startWith : function(values*)
     {
