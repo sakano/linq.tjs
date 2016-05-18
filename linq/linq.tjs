@@ -468,6 +468,48 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, second, resultSelector, args
         );
     },
+    repeat : function(count = -1)
+    {
+        if (count == 0) {
+            return global.Enumerable.empty();
+        }
+        if (count == 1) {
+            return this;
+        }
+        return global.Enumerable.createEnumerable(
+            function(self, count) {
+                this.self = self.getEnumerator();
+                this.count = count;
+                this.buffer = [];
+                this.bufferIndex = -1;
+                this.countIndex = 0;
+                this.initialized = false;
+            },
+            function {
+                if (!initialized) {
+                    if (self.moveNext()) {
+                        buffer.add(self.current);
+                        this.result = self.current;
+                        return true;
+                    }
+                    initialized = true;
+                    ++countIndex;
+                }
+
+                ++bufferIndex;
+                if (buffer.count <= bufferIndex) {
+                    ++countIndex;
+                    if (0 <= count && count <= countIndex) {
+                        return false;
+                    }
+                    bufferIndex = 0;
+                }
+                this.result = buffer[bufferIndex];
+                return true;
+            },
+            this, count
+        );
+    },
     skip : function(count)
     {
         return this.skipWhile(function(x, index, count) {

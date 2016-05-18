@@ -1,5 +1,5 @@
 // ======================================================== Enumerable.from
-function testFromArray
+function testEnumerableFromArray
 {
     var testArray = function(array) {
         var index = 0;
@@ -18,7 +18,7 @@ function testFromArray
     testArray([void, [1, 2, 3], [], %[]]);
 }
 
-function testFromDictionary
+function testEnumerableFromDictionary
 {
     var testDictionary = function(dic) {
         var copy = %[];
@@ -40,7 +40,7 @@ function testFromDictionary
     testDictionary(%[ ary:[100, 200], dic:%[ key:"value" ] ]);
 }
 
-function testFromString
+function testEnumerableFromString
 {
     var testString = function(str) {
         var index = 0;
@@ -59,7 +59,7 @@ function testFromString
     testString("$");
 }
 
-function testFromEnumerable
+function testEnumerableFromEnumerable
 {
     var enumerable = %[
         getEnumerator : function {}
@@ -173,7 +173,7 @@ function testToLooup
 }
 
 // ======================================================== Enumerable.empty
-function testEmpty
+function testEnumerableEmpty
 {
     var enumerable = Enumerable.empty();
     var enumerator = enumerable.getEnumerator();
@@ -184,7 +184,7 @@ function testEmpty
 }
 
 // ======================================================== Enumerable.generate
-function testGenerate
+function testEnumerableGenerate
 {
     var enumerator = Enumerable.generate(function { return 100; }).getEnumerator();
     for (var i = 0; i < 100; ++i) {
@@ -222,7 +222,7 @@ function testGenerate
 }
 
 // ======================================================== Enumerable.range
-function testRange
+function testEnumerableRange
 {
     var ary = Enumerable.range(1, 10).toArray();
     equals(
@@ -249,7 +249,7 @@ function testRange
 }
 
 // ======================================================== Enumerable.repeat
-function testRepeat
+function testEnumerableRepeat
 {
     var enumerator = Enumerable.repeat(10).getEnumerator();
     for (var i = 0; i < 1000; ++i) {
@@ -274,7 +274,7 @@ function testRepeat
 }
 
 // ======================================================== Enumerable.returns
-function testReturns
+function testEnumerableReturns
 {
     equals(Enumerable.returns(10).toArray(), [10]);
     equals(Enumerable.returns("").toArray(), [""]);
@@ -285,7 +285,7 @@ function testReturns
 }
 
 // ======================================================== Enumerable.matches
-function testMatches
+function testEnumerableMatches
 {
     equals(Enumerable.matches("abcd", /[a-z]/g).toArray(),
         [
@@ -307,7 +307,7 @@ function testMatches
 }
 
 // ======================================================== Enumerable.random
-function testRandom
+function testEnumerableRandom
 {
     var enumerator = Enumerable.random().getEnumerator();
     for (var i = 0; i < 1000; ++i) {
@@ -339,7 +339,7 @@ function testRandom
 }
 
 // ======================================================== Enumerable.randomInt
-function testRandomInt
+function testEnumerableRandomInt
 {
     var enumerator = Enumerable.randomInt(0, 10).getEnumerator();
     for (var i = 0; i < 1000; ++i) {
@@ -1452,6 +1452,25 @@ function testZip
         [["key", 10, -1], ["key", 11, -1], ["key", 12, -1]]
     );
 }
+
+// ======================================================== repeat
+function testRepeat
+{
+    equals(Enumerable.range(1,3).repeat(0).toArray(), []);
+    equals(Enumerable.range(1,3).repeat(1).toArray(), [1, 2, 3]);
+    equals(Enumerable.range(1,3).repeat(2).toArray(), [1, 2, 3, 1, 2, 3]);
+    equals(Enumerable.range(1,3).repeat(3).toArray(), [1, 2, 3, 1, 2, 3, 1, 2, 3]);
+    var enumerator = Enumerable.range(0,10).repeat().getEnumerator();
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        equals(enumerator.current, i % 10);
+    }
+
+    equals(Enumerable.empty().repeat(0).toArray(), []);
+    equals(Enumerable.empty().repeat(1).toArray(), []);
+    equals(Enumerable.from("abc").repeat(2).toString(), "abcabc");
+}
+
 // ======================================================== skip
 function testSkip
 {
