@@ -21,7 +21,7 @@ Scripts.propSet(Enumerable, "extendTo", function(target)
     if (target === global.Array) {
         if (typeof target.getEnumerator === "undefined") {
             target.getEnumerator = function {
-                var e = global.Enumerable.from(this, false).getEnumerator();
+                var e = global.Enumerable.from(this).getEnumerator();
                 return e;
             };
         }

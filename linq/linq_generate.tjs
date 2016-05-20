@@ -1,10 +1,6 @@
 // ======================================================== Enumerable.from
-Scripts.propSet(Enumerable, "from", function(source, checkEnumerable = true)
+Scripts.propSet(Enumerable, "from", function(source)
 {
-    if (checkEnumerable && global.Enumerable.isEnumerable(source)) {
-        return source;
-    }
-
     if (source instanceof "Array") {
         return global.Enumerable.generate(
             function(index, source) { return source[index]; },
@@ -49,6 +45,10 @@ Scripts.propSet(Enumerable, "from", function(source, checkEnumerable = true)
             function(index, source) { return source[index]; },
             source.length, source
         );
+    }
+
+    if (global.Enumerable.isEnumerable(source)) {
+        return source;
     }
 
     return null;

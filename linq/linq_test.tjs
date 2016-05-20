@@ -61,17 +61,8 @@ function testEnumerableFromString
 
 function testEnumerableFromEnumerable
 {
-    var enumerable = %[
-        getEnumerator : function {}
-    ];
-    equals(Enumerable.from(enumerable), enumerable);
-
-    var enumerable = Enumerable.from(enumerable, false);
-    var enumerator = enumerable.getEnumerator();
-    equals(enumerator.moveNext(), true);
-    equals(enumerator.current.key, "getEnumerator");
-    assert(enumerator.current.value instanceof "Function");
-    equals(enumerator.moveNext(), false);
+    var enumerable = Enumerable.range(1,3);
+    assert(Enumerable.from(enumerable) === enumerable);
 
     equals(Enumerable.from(function{}), null);
 }
