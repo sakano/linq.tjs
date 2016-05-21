@@ -122,11 +122,13 @@ Scripts.propSet(Enumerable, "matches", function(regex, target, reset = true)
         function(regex, target, reset) {
             this.regex = regex;
             this.target = target;
-            if (reset) {
-                this.regex.start = 0;
-            }
+            this.reset = reset;
         },
         function {
+            if (reset) {
+                reset = false;
+                this.regex.start = 0;
+            }
             if (!regex.test(target)) {
                 return false;
             }
