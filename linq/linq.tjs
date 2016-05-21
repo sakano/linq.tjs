@@ -634,36 +634,29 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this
         );
     },
-    count : function(predicate = function { return true; }, args*)
+    count : function(predicate, args*)
     {
         predicate = global.Enumerable.createLambda(predicate);
 
         var counter = 0;
         var enumerator = this.getEnumerator();
         while (enumerator.moveNext()) {
-            if (predicate(enumerator.current, args*)) {
+            if (predicate === void || predicate(enumerator.current, args*)) {
                 ++counter;
             }
         }
         return counter;
     },
-    indexOf : function(target, args*)
+    indexOf : function(element, comparer = function(a,b) { return a === b; }, args*)
     {
+        comparer = global.Enumerable.createLambda(comparer);
+
         var enumerator = this.getEnumerator();
         var index = -1;
-        if (target instanceof "Function") {
-            while (enumerator.moveNext()) {
-                index++;
-                if (target(enumerator.current, args*)) {
-                    return index;
-                }
-            }
-        } else {
-            while (enumerator.moveNext()) {
-                index++;
-                if (target === enumerator.current) {
-                    return index;
-                }
+        while (enumerator.moveNext()) {
+            ++index;
+            if (comparer(element, enumerator.current, args*)) {
+                return index;
             }
         }
         return -1;
@@ -699,9 +692,9 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         }
         return true;
     },
-    contains : function(value, comparer = function(a, b) { return a === b; }, args*)
+    contains : function(element, comparer, args*)
     {
-        return this.any(comparer, value, args*);
+        return (this.indexOf(element, comparer, args*) >= 0);
     },
     sequenceEqual : function(second, comparer = function(a, b) { return a === b; }, args*)
     {

@@ -1827,10 +1827,10 @@ function testIndexOf
     equals(Enumerable.range(1, 3).indexOf(3), 2);
     equals(Enumerable.range(1, 3).indexOf(3.0), -1);
     equals(Enumerable.empty().indexOf(0), -1);
-    equals(Enumerable.range(1, 3).indexOf(function(x) { return x == 2; }), 1);
-    equals(Enumerable.range(1, 3).indexOf(function(x) { return x == 0; }), -1);
-    equals(Enumerable.range(1, 3).indexOf(function(x, v) { return x == v; }, 1), 0);
-    equals(Enumerable.range(1, 3).indexOf(function(x, v) { return x == v; }, 5), -1);
+    equals(Enumerable.range(1, 3).indexOf(3.0, function(a,b) { return a == b; }), 2);
+    equals(Enumerable.range(1, 3).indexOf(3.0, "_ == _2"), 2);
+    equals(Enumerable.range(1, 3).indexOf(0, "_ === _3", 0), 0);
+    equals(Enumerable.range(1, 3).indexOf(0, "_2 === _3", 2), 1);
 }
 
 // ======================================================== isEmpty
@@ -1893,7 +1893,8 @@ function testContains
     equals(Enumerable.range(1, 3).contains(-1), false);
     equals(Enumerable.range(1, 3).contains(-1, function(x) { return x < 0 ? -x : x; }), true);
     equals(Enumerable.range(1, 3).contains(-1, "_ < 0 ? -_ : _"), true);
-    equals(Enumerable.range(1, 3).contains(6, "_ % _2", 3), true);
+    equals(Enumerable.range(1, 3).contains(0, "_2 === _3", 3), true);
+    equals(Enumerable.range(1, 3).contains(0, "_ === _3", 3), false);
     equals(Enumerable.empty().contains(1), false);
     equals(Enumerable.from([]).contains(void), false);
     equals(Enumerable.from([1, void, 2]).contains(void), true);
