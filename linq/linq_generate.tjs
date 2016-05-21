@@ -108,8 +108,8 @@ Scripts.propSet(Enumerable, "repeat", function(value, count)
 }, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
 
 
-// ======================================================== Enumerable.returns
-Scripts.propSet(Enumerable, "returns", function(value)
+// ======================================================== Enumerable.return
+Scripts.propSet(Enumerable, "return", function(value)
 {
     return global.Enumerable.repeat(value, 1);
 }, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
