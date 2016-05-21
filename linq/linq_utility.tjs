@@ -50,7 +50,14 @@ Scripts.propSet(Enumerable, "createEnumerable", function
 Scripts.propSet(Enumerable, "createLambda", function(target)
 {
     if (typeof target === "String") {
-        return Scripts.eval("function(_, _2, _3, _4, _5, _6, _7, _8, _9) { return " + target + "; }");
+        var arrowIndex = target.indexOf("=>");
+        if (arrowIndex < 0) {
+            return Scripts.eval("function(_, _2, _3, _4, _5, _6, _7, _8, _9) { return " + target + "; }");
+        } else {
+            var params = target.substr(0, arrowIndex);
+            var body = target.substr(arrowIndex+2);
+            return Scripts.eval("function(" + params + ") { return " + body + "; }");
+        }
     }
     return target;
 }, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
