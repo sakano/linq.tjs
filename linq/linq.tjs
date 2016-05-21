@@ -888,6 +888,27 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             ++index;
         }
     },
+    "do" => function(callback, args*)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, callback, args) {
+                this.self = self.getEnumerator();
+                this.callback = global.Enumerable.createLambda(callback);
+                this.args = args;
+                this.index = -1;
+            },
+            function {
+                while (self.moveNext()) {
+                    ++index;
+                    callback(self.current, index, args*);
+                    this.result = self.current;
+                    return true;
+                }
+                return false;
+            },
+            this, callback, args
+        );
+    },
     toArray : function
     {
         var result = [];

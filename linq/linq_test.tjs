@@ -2272,6 +2272,31 @@ function testForEach
     equals(ary, [0, 1, 2, 3]);
 }
 
+// ======================================================== do
+function testDo
+{
+    var elements = [];
+    equals(Enumerable.range(0,4,2)
+        .do(function(x, index, elements) { elements.push(index, x); }, elements)
+        .toArray(),
+        [0,2,4,6]
+    );
+    equals(elements, [0,0,1,2,2,4,3,6]);
+
+    elements.clear();
+    equals(Enumerable.range(0,4,-1)
+        .do("_3[_2] = _", elements)
+        .toArray(),
+        [0,-1,-2,-3]
+    );
+    equals(elements, [0,-1,-2,-3]);
+
+    equals(Enumerable.empty()
+        .do(function { throw new Exception("never called"); })
+        .toArray(),
+        []
+    );
+}
 // ======================================================== trace
 function testTrace
 {
