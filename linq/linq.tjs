@@ -45,6 +45,24 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, selector, args
         );
     },
+    selectWithoutIndex : function(selector, args*)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, selector, args) {
+                this.self = self.getEnumerator();
+                this.selector = global.Enumerable.createLambda(selector);
+                this.args = args;
+            },
+            function {
+                while (self.moveNext()) {
+                    this.result = selector(self.current, args*);
+                    return true;
+                }
+                return false;
+            },
+            this, selector, args
+        );
+    },
     selectMany : function(collectionSelector, resultSelector = function(a, b) { return b; }, args*)
     {
         return global.Enumerable.createEnumerable(
@@ -835,7 +853,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
     {
         var query = this;
         if (selector !== void) {
-            query = query.select(selector, args*);
+            query = query.selectWithoutIndex(selector, args*);
         }
         return query.aggregate(
             function(a, b) { return a > b ? a : b; },
@@ -846,7 +864,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
     {
         var query = this;
         if (selector !== void) {
-            query = query.select(selector, args*);
+            query = query.selectWithoutIndex(selector, args*);
         }
         return query.aggregate(
             function(a, b) { return a < b ? a : b; },
@@ -857,7 +875,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
     {
         var query = this;
         if (selector !== void) {
-            query = query.select(selector, args*);
+            query = query.selectWithoutIndex(selector, args*);
         }
         return query.aggregate(
             function(a, b) { return a + b; },
