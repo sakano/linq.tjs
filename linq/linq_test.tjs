@@ -281,7 +281,7 @@ function testEnumerableReturn
 // ======================================================== Enumerable.matches
 function testEnumerableMatches
 {
-    equals(Enumerable.matches("abcd", /[a-z]/g).toArray(),
+    equals(Enumerable.matches(/[a-z]/g, "abcd").toArray(),
         [
             ["a"],
             ["b"],
@@ -289,15 +289,29 @@ function testEnumerableMatches
             ["d"]
         ]
     );
-    equals(Enumerable.matches("a2bcd3e4", /([a-z])([0-9])/g).toArray(),
+    equals(Enumerable.matches(/([a-z])([0-9])/g, "a2bcd3e4").toArray(),
         [
             ["a2", "a", "2"],
             ["d3", "d", "3"],
             ["e4", "e", "4"]
         ]
     );
-    equals(Enumerable.matches("", /[a-z]/g).toArray(), []);
-    equals(Enumerable.matches("ABC", /[a-z]/g).toArray(), []);
+    equals(Enumerable.matches(/[a-z]/g, "").toArray(), []);
+    equals(Enumerable.matches(/[a-z]/g, "ABC").toArray(), []);
+
+    var regex = /[a-z]/g;
+    equals(
+        Enumerable.matches(regex, "abc").toArray(),
+        [["a"], ["b"], ["c"]]
+    );
+    equals(
+        Enumerable.matches(regex, "abc", false).toArray(),
+        []
+    );
+    equals(
+        Enumerable.matches(regex, "abc", true).toArray(),
+        [["a"], ["b"], ["c"]]
+    );
 }
 
 // ======================================================== Enumerable.random
