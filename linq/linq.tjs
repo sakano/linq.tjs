@@ -904,9 +904,13 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
         }
         return result;
     },
-    toString : function(delimiter = "")
+    toString : function(delimiter = "", selector, args*)
     {
-        return this.toArray().join(delimiter);
+        var query = this;
+        if (selector !== void) {
+            query = query.selectWithoutIndex(selector, args*);
+        }
+        return query.toArray().join(delimiter);
     },
     toDictionary : function(keySelector, elementSelector = function(x) { return x; }, args*)
     {
