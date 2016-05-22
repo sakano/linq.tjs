@@ -417,6 +417,36 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
     {
         return global.Enumerable.from(values).concat(this);
     },
+    insert : function(index, second)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, index, second) {
+                this.first = self.getEnumerator();
+                this.second = global.Enumerable.from(second).getEnumerator();
+                this.insertIndex = index;
+                this.index = 0;
+            },
+            function {
+                if (index === insertIndex) {
+                    if (second.moveNext()) {
+                        this.result = second.current;
+                        return true;
+                    }
+                }
+                ++index;
+                if (first.moveNext()) {
+                    this.result = first.current;
+                    return true;
+                }
+                if (second.moveNext()) {
+                    this.result = second.current;
+                    return true;
+                }
+                return false;
+            },
+            this, index, second
+        );
+    },
     defaultIfEmpty : function(defaultValue)
     {
         return global.Enumerable.createEnumerable(
