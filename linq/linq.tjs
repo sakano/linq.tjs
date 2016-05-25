@@ -558,6 +558,49 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, count
         );
     },
+    doWhile : function(condition, args*)
+    {
+        return global.Enumerable.createEnumerable(
+            function(self, condition, args) {
+                this.self = self.getEnumerator();
+                this.condition = global.Enumerable.createLambda(condition);
+                this.args = args;
+                this.buffer = [];
+                this.bufferIndex = -1;
+                this.initialized = false;
+                this.finished = false;
+            },
+            function {
+                if (!initialized) {
+                    if (self.moveNext()) {
+                        buffer.add(self.current);
+                        this.result = self.current;
+                        return true;
+                    }
+                    initialized = true;
+                    if (buffer.count === 0 || !condition(args*)) {
+                        finished = true;
+                    }
+                }
+
+                if (finished) {
+                    return false;
+                }
+
+                ++bufferIndex;
+                if (buffer.count <= bufferIndex) {
+                    if (!condition(args*)) {
+                        finished = true;
+                        return false;
+                    }
+                    bufferIndex = 0;
+                }
+                this.result = buffer[bufferIndex];
+                return true;
+            },
+            this, condition, args
+        );
+    },
     skip : function(count)
     {
         return this.skipWhile(function(x, index, count) {

@@ -1531,6 +1531,41 @@ function testRepeat
     equals(Enumerable.from("abc").repeat(2).toString(), "abcabc");
 }
 
+// ======================================================== doWhile
+function testDoWhile
+{
+    var enumerator = Enumerable.range(0,3)
+        .doWhile(function { return true; })
+        .getEnumerator();
+    for (var i = 0; i < 100; ++i) {
+        equals(enumerator.moveNext(), true);
+        equals(enumerator.current, i % 3);
+    }
+
+    var counts = [0];
+    equals(
+        Enumerable.range(0,3)
+            .doWhile("counts => ++counts[0] < 3", counts)
+            .toArray(),
+        [0,1,2,0,1,2,0,1,2]
+    );
+    equals(counts[0], 3);
+
+    equals(
+        Enumerable.range(0,3)
+            .doWhile("false")
+            .toArray(),
+        [0,1,2]
+    );
+
+    equals(
+        Enumerable.empty()
+            .doWhile(function { throw new Exception("never called"); })
+            .toArray(),
+        []
+    );
+}
+
 // ======================================================== skip
 function testSkip
 {
