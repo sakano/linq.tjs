@@ -13,7 +13,7 @@ Scripts.propSet(Enumerable, "extendTo", function(target)
         }
         if (!alreadyExist) {
             target[key] = methods[key];
-        } else if (typeof target[key + "ByLinq" === "undefined"]) {
+        } else if (typeof target[key + "ByLinq"] === "undefined") {
             target[key + "ByLinq"] = methods[key];
         }
     }

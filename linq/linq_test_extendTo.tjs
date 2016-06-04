@@ -21,6 +21,8 @@ function testExtendTo
         .toArray(),
         [3, 5, 8, 1]
     );
+    equals([-1,0,1,2].countByLinq("_ >= 0"), 3);
+
     equals(Enumerable.from([1,2,3]).count(), 3);
     equals(Enumerable.from([1,2,3]).reverse().toArray(), [3,2,1]);
 }
