@@ -982,6 +982,10 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this, callback, args
         );
     },
+    asEnumerable : function
+    {
+        return this.select(function(x) { return x; });
+    },
     toArray : function
     {
         var result = [];
@@ -1047,7 +1051,7 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
 ], Scripts.pfStaticMember | Scripts.pfMemberEnsure);
 
 Enumerable.extensionMethods.groupJoin = Enumerable.extensionMethods.outerJoin;
-
+Enumerable.extensionMethods.hide = Enumerable.extensionMethods.asEnumerable;
 
 class Enumerable
 {

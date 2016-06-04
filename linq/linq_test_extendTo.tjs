@@ -26,3 +26,27 @@ function testExtendTo
     equals(Enumerable.from([1,2,3]).count(), 3);
     equals(Enumerable.from([1,2,3]).reverse().toArray(), [3,2,1]);
 }
+
+function testAsEnumerable
+{
+    equals([-1,0,1].count, 3);
+    equals([-1,0,1].countByLinq("_ >= 0"), 2);
+    equals([-1,0,1].asEnumerable().count("_ >= 0"), 2);
+}
+
+function testHide
+{
+    var array = [-1,0,1];
+    equals(array instanceof "Array", true);
+    equals(array.hide() instanceof "Array", false);
+    equals(Enumerable.isEnumerable(array), true);
+    equals(array.hide().count("_ >= 0"), 2);
+
+    var dic = %[];
+    var enumerable = Enumerable.from(dic);
+    equals(dic instanceof "Dictionary", true);
+    equals(enumerable instanceof "Dictionary", false);
+    equals(enumerable.hide() instanceof "Dictionary", false);
+    equals(Enumerable.isEnumerable(dic), false);
+    equals(Enumerable.isEnumerable(enumerable), true);
+}
