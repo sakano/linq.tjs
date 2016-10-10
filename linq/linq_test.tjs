@@ -378,6 +378,51 @@ function testEnumerableRandomInt
     equals(enumerator.moveNext(), false);
 }
 
+// ======================================================== Enumerable.choice
+function testEnumerableChoice
+{
+    var enumerator = Enumerable.choice(["a", "bc", 123]).getEnumerator();
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        assert(enumerator.current === "a" || enumerator.current === "bc" || enumerator.current === 123);
+    }
+
+    var enumerator = Enumerable.choice(["a"]).getEnumerator();
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        assert(enumerator.current === "a");
+    }
+
+    var enumerator = Enumerable.choice(Enumerable.range(0,2)).getEnumerator();
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        assert(enumerator.current === 0 || enumerator.current === 1);
+    }
+}
+
+// ======================================================== Enumerable.cycle
+function testEnumerableCycle
+{
+    var array = ["a", "bc", 123];
+    var enumerator = Enumerable.cycle(array).getEnumerator();
+    for (var i = 0; i < 10; ++i) {
+        equals(enumerator.moveNext(), true);
+        assert(enumerator.current === array[i % array.count]);
+    }
+
+    var enumerator = Enumerable.cycle(["a"]).getEnumerator();
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        assert(enumerator.current === "a");
+    }
+
+    var enumerator = Enumerable.cycle(Enumerable.range(0,2)).getEnumerator();
+    for (var i = 0; i < 1000; ++i) {
+        equals(enumerator.moveNext(), true);
+        assert(enumerator.current === i % 2);
+    }
+}
+
 // ======================================================== where
 function testWhere
 {

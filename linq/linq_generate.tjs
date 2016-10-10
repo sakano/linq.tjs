@@ -158,3 +158,24 @@ Scripts.propSet(Enumerable, "randomInt", function(min, max, seed, count)
             return (int)(x * (max - min + 1)) + min;
         }, min, max);
 }, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+// ======================================================== Enumerable.choice
+Scripts.propSet(Enumerable, "choice", function(values)
+{
+    if (!(values instanceof "Array") && Enumerable.isEnumerable(values)) {
+        values = values.toArray();
+    }
+    return global.Enumerable.randomInt(0, values.count-1)
+        .select(function(x) { return this[x]; } incontextof values);
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
+// ======================================================== Enumerable.choice
+Scripts.propSet(Enumerable, "cycle", function(values)
+{
+    if (!(values instanceof "Array") && Enumerable.isEnumerable(values)) {
+        values = values.toArray();
+    }
+    return global.Enumerable.generate(
+        function(index) { return this[index % count]; } incontextof values);
+}, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
+
