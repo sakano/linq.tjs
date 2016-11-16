@@ -1954,6 +1954,38 @@ function testReverse
     equals(Enumerable.empty().reverse().toArray(), []);
 }
 
+// ======================================================== shuffle
+function testShuffle
+{
+    var elements = [0, 1, 2];
+    var result = %[ "0,1,2" => 0, "0,2,1" => 0, "1,0,2" => 0, "1,2,0" => 0, "2,0,1" => 0, "2,1,0" => 0 ];
+    for (var i = 0; i < 1000; ++i) {
+        var str = Enumerable.from(elements).shuffle().toString(",");
+        equals(result[str] !== void, true);
+        ++result[str];
+    }
+    equals(result["0,1,2"] > 0, true);
+    equals(result["0,2,1"] > 0, true);
+    equals(result["1,0,2"] > 0, true);
+    equals(result["1,2,0"] > 0, true);
+    equals(result["2,0,1"] > 0, true);
+    equals(result["2,1,0"] > 0, true);
+    
+    var elements = [0, 1, 2, 3, 4];
+    var enumerator = Enumerable.range(0, 5).shuffle().getEnumerator();
+    while (enumerator.moveNext()) {
+        equals(elements.remove(enumerator.current), 1);
+    }
+    equals(elements.count, 0);
+
+    var elements = [void, 0, 1, null, "str", "void", -1, 0.0, "0"];
+    var enumerator = Enumerable.from(elements).shuffle().getEnumerator();
+    while (enumerator.moveNext()) {
+        equals(elements.remove(enumerator.current), 1);
+    }
+    equals(elements.count, 0);
+}
+
 // ======================================================== count
 function testCount
 {

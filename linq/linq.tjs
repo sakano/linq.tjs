@@ -707,6 +707,33 @@ Scripts.propSet(Enumerable, "extensionMethods", %[
             this
         );
     },
+    shuffle : function
+    {
+        return global.Enumerable.createEnumerable(
+            function(self) {
+                this.self = self;
+                this.initialized = false;
+            },
+            function {
+                if (!initialized) {
+                    initialized = true;
+                    this.buffer = self.toArray();
+                    var generator = new global.Math.RandomGenerator();
+                    for (var i = buffer.length-1; i > 0; --i) {
+                        var j = (int)(generator.random() * (i + 1));
+                        buffer[i] <-> buffer[j];
+                    }
+                }
+
+                if (buffer.count == 0) {
+                    return false;
+                }
+                this.result = buffer.pop();
+                return true;
+            },
+            this
+        );
+    },
     count : function(predicate, args*)
     {
         predicate = global.Enumerable.createLambda(predicate);
