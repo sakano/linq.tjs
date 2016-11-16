@@ -169,7 +169,7 @@ Scripts.propSet(Enumerable, "choice", function(values)
         .select(function(x) { return this[x]; } incontextof values);
 }, Scripts.pfStaticMember | Scripts.pfMemberEnsure);
 
-// ======================================================== Enumerable.choice
+// ======================================================== Enumerable.cycle
 Scripts.propSet(Enumerable, "cycle", function(values)
 {
     if (!(values instanceof "Array") && Enumerable.isEnumerable(values)) {
