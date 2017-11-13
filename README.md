@@ -10,14 +10,14 @@ LINQ for TJS
 ## Example
 ```javascript
 var data = [
-    %[ name : "United States",  GDP:17348072 ],
-    %[ name : "China",          GDP:10430590 ],
-    %[ name : "Japan",          GDP:4605511 ],
-    %[ name : "Germany",        GDP:3868291 ],
-    %[ name : "United Kingdom", GDP:2988893 ],
-    %[ name : "France",         GDP:2829192 ],
-    %[ name : "Brazil",         GDP:2346523 ],
-    %[ name : "India",          GDP:2054941 ]
+    %[ name:"United States",  GDP:17348072 ],
+    %[ name:"China",          GDP:10430590 ],
+    %[ name:"Japan",          GDP:4605511 ],
+    %[ name:"Germany",        GDP:3868291 ],
+    %[ name:"United Kingdom", GDP:2988893 ],
+    %[ name:"France",         GDP:2829192 ],
+    %[ name:"Brazil",         GDP:2346523 ],
+    %[ name:"India",          GDP:2054941 ]
 ];
 
 // print countries' name whose GDP is greater than 3000000
@@ -34,6 +34,7 @@ Enumerable.from(data)
 
 // string can be used as function expression
 // '_' means the first argument
+// the following code will output same messages
 Enumerable.from(data)
     .where("_.GDP > 3000000")
     .select("_.name")
